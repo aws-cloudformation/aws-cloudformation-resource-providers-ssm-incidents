@@ -1,0 +1,7 @@
+{
+  "Name": "contractTestV2",
+  "IncidentTemplate": {
+    "Title": "some-title-22",
+    "Impact": 4
+  }
+}

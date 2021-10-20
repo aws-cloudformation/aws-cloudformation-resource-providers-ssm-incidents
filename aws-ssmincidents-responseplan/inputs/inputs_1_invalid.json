@@ -1,0 +1,8 @@
+{
+  "Name": "invalidcontractTestV1",
+  "Arn": "arn:aws:ssm-incidents::{{CFNContractTestAccountId}}:response-plan/RpHelloWorldDontExist",
+  "IncidentTemplate": {
+    "Title": "some-title",
+    "Impact": 3
+  }
+}
