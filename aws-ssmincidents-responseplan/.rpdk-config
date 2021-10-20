@@ -1,0 +1,25 @@
+{
+    "artifact_type": "RESOURCE",
+    "typeName": "AWS::SSMIncidents::ResponsePlan",
+    "language": "java",
+    "runtime": "java8",
+    "entrypoint": "software.amazon.ssmincidents.responseplan.HandlerWrapper::handleRequest",
+    "testEntrypoint": "software.amazon.ssmincidents.responseplan.HandlerWrapper::testEntrypoint",
+    "settings": {
+        "version": false,
+        "subparser_name": null,
+        "verbose": 1,
+        "force": true,
+        "type_name": "AWS::SSMIncidents::ResponsePlan",
+        "artifact_type": "RESOURCE",
+        "namespace": [
+            "software",
+            "amazon",
+            "ssmincidents",
+            "responseplan"
+        ],
+        "codegen_template_path": "guided_aws",
+        "protocolVersion": "2.0.0"
+    },
+    "executableEntrypoint": "software.amazon.ssmincidents.responseplan.HandlerWrapperExecutable"
+}
