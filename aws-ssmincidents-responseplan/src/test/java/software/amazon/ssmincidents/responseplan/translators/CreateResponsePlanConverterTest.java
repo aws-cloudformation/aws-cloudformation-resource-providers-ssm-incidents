@@ -17,71 +17,71 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CreateResponsePlanConverterTest {
 
-  private Converter<CreateResponsePlanRequest, ResourceModel> createResponsePlanConverter;
+    private Converter<CreateResponsePlanRequest, ResourceModel> createResponsePlanConverter;
 
-  static Stream<Arguments> provideBackwardParameters() {
-    return Stream.of(
-        Arguments.of(
-            software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanRequest.builder()
-                .name(TestData.NAME)
-                .displayName(TestData.DISPLAY_NAME)
-                .actions(TestData.API_ACTION)
-                .chatChannel(TestData.API_CHAT_CHANNEL)
-                .incidentTemplate(TestData.API_INCIDENT_TEMPLATE)
-                .engagements(ImmutableSet.of(TestData.CONTACT, TestData.ESCALATION))
-                .tags(TestData.API_TAGS_1)
-                .build(),
-            ResourceModel.builder()
-                .name(TestData.NAME)
-                .displayName(TestData.DISPLAY_NAME)
-                .actions(ImmutableList.of(TestData.ACTION))
-                .chatChannel(TestData.CHAT_CHANNEL)
-                .incidentTemplate(TestData.INCIDENT_TEMPLATE)
-                .engagements(ImmutableSet.of(TestData.CONTACT, TestData.ESCALATION))
-                .tags(TestData.TAGS_1)
-                .build()
-        ),
-        Arguments.of(
-            software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanRequest.builder()
-                .name(TestData.NAME)
-                .displayName(TestData.DISPLAY_NAME)
-                .incidentTemplate(TestData.API_INCIDENT_TEMPLATE)
-                .build(),
-            ResourceModel.builder()
-                .name(TestData.NAME)
-                .displayName(TestData.DISPLAY_NAME)
-                .incidentTemplate(TestData.INCIDENT_TEMPLATE)
-                .build()
-        ),
-        Arguments.of(
-            software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanRequest.builder()
-                .name(TestData.NAME)
-                .incidentTemplate(TestData.API_INCIDENT_TEMPLATE)
-                .build(),
-            ResourceModel.builder()
-                .name(TestData.NAME)
-                .incidentTemplate(TestData.INCIDENT_TEMPLATE)
-                .build()
-        ),
-        Arguments.of(
-            null, null
-        )
-    );
-  }
+    static Stream<Arguments> provideBackwardParameters() {
+        return Stream.of(
+            Arguments.of(
+                software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanRequest.builder()
+                    .name(TestData.NAME)
+                    .displayName(TestData.DISPLAY_NAME)
+                    .actions(TestData.API_ACTION)
+                    .chatChannel(TestData.API_CHAT_CHANNEL)
+                    .incidentTemplate(TestData.API_INCIDENT_TEMPLATE)
+                    .engagements(ImmutableSet.of(TestData.CONTACT, TestData.ESCALATION))
+                    .tags(TestData.API_TAGS_1)
+                    .build(),
+                ResourceModel.builder()
+                    .name(TestData.NAME)
+                    .displayName(TestData.DISPLAY_NAME)
+                    .actions(ImmutableList.of(TestData.ACTION))
+                    .chatChannel(TestData.CHAT_CHANNEL)
+                    .incidentTemplate(TestData.INCIDENT_TEMPLATE)
+                    .engagements(ImmutableSet.of(TestData.CONTACT, TestData.ESCALATION))
+                    .tags(TestData.TAGS_1)
+                    .build()
+            ),
+            Arguments.of(
+                software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanRequest.builder()
+                    .name(TestData.NAME)
+                    .displayName(TestData.DISPLAY_NAME)
+                    .incidentTemplate(TestData.API_INCIDENT_TEMPLATE)
+                    .build(),
+                ResourceModel.builder()
+                    .name(TestData.NAME)
+                    .displayName(TestData.DISPLAY_NAME)
+                    .incidentTemplate(TestData.INCIDENT_TEMPLATE)
+                    .build()
+            ),
+            Arguments.of(
+                software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanRequest.builder()
+                    .name(TestData.NAME)
+                    .incidentTemplate(TestData.API_INCIDENT_TEMPLATE)
+                    .build(),
+                ResourceModel.builder()
+                    .name(TestData.NAME)
+                    .incidentTemplate(TestData.INCIDENT_TEMPLATE)
+                    .build()
+            ),
+            Arguments.of(
+                null, null
+            )
+        );
+    }
 
-  @BeforeEach
-  void setUp() {
-    createResponsePlanConverter = TranslatorFactory.CREATE_RESPONSEPLAN_CONVERTER;
-  }
+    @BeforeEach
+    void setUp() {
+        createResponsePlanConverter = TranslatorFactory.CREATE_RESPONSEPLAN_CONVERTER;
+    }
 
-  @ParameterizedTest
-  @MethodSource("provideBackwardParameters")
-  void doBackward(
-      software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanRequest apiCreateResponsePlanRequest,
-      ResourceModel resourceModel
-  ) {
-    assertThat(
-        createResponsePlanConverter.reverse().convert(resourceModel)
-    ).usingRecursiveComparison().isEqualTo(apiCreateResponsePlanRequest);
-  }
+    @ParameterizedTest
+    @MethodSource("provideBackwardParameters")
+    void doBackward(
+        software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanRequest apiCreateResponsePlanRequest,
+        ResourceModel resourceModel
+    ) {
+        assertThat(
+            createResponsePlanConverter.reverse().convert(resourceModel)
+        ).usingRecursiveComparison().isEqualTo(apiCreateResponsePlanRequest);
+    }
 }

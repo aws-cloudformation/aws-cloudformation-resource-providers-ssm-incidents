@@ -10,8 +10,8 @@ public class ClientBuilder {
     public static SsmIncidentsClient getClient() {
         String region = getRegion();
         return SsmIncidentsClient.builder().region(Region.of(region))
-                .httpClient(LambdaWrapper.HTTP_CLIENT)
-                .build();
+            .httpClient(LambdaWrapper.HTTP_CLIENT)
+            .build();
     }
 
     private static String getRegion() {

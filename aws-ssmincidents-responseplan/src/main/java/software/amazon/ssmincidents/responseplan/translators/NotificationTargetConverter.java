@@ -8,21 +8,21 @@ public class NotificationTargetConverter extends
     Converter<software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem, NotificationTargetItem> {
 
 
-  @Override
-  protected NotificationTargetItem doForward(
-      software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem notificationTargetItem
-  ) {
-    return NotificationTargetItem.builder()
-        .snsTopicArn(notificationTargetItem.snsTopicArn())
-        .build();
-  }
+    @Override
+    protected NotificationTargetItem doForward(
+        software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem notificationTargetItem
+    ) {
+        return NotificationTargetItem.builder()
+            .snsTopicArn(notificationTargetItem.snsTopicArn())
+            .build();
+    }
 
-  @Override
-  protected software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem doBackward(
-      NotificationTargetItem notificationTargetItem
-  ) {
-    return software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem.builder()
-        .snsTopicArn(notificationTargetItem.getSnsTopicArn())
-        .build();
-  }
+    @Override
+    protected software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem doBackward(
+        NotificationTargetItem notificationTargetItem
+    ) {
+        return software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem.builder()
+            .snsTopicArn(notificationTargetItem.getSnsTopicArn())
+            .build();
+    }
 }

@@ -14,44 +14,44 @@ import java.util.Optional;
 
 public class GetResponsePlanConverter extends Converter<GetResponsePlanResponse, ResourceModel> {
 
-  Converter<software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate, IncidentTemplate> incidentTemplateConverter;
-  Converter<software.amazon.awssdk.services.ssmincidents.model.Action, Action> actionConverter;
-  Converter<software.amazon.awssdk.services.ssmincidents.model.ChatChannel, ChatChannel> chatChannelConverter;
+    Converter<software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate, IncidentTemplate> incidentTemplateConverter;
+    Converter<software.amazon.awssdk.services.ssmincidents.model.Action, Action> actionConverter;
+    Converter<software.amazon.awssdk.services.ssmincidents.model.ChatChannel, ChatChannel> chatChannelConverter;
 
-  public GetResponsePlanConverter(
-      Converter<software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate, IncidentTemplate> incidentTemplateConverter,
-      Converter<software.amazon.awssdk.services.ssmincidents.model.Action, Action> actionConverter,
-      Converter<software.amazon.awssdk.services.ssmincidents.model.ChatChannel, ChatChannel> chatChannelConverter) {
-    this.incidentTemplateConverter = incidentTemplateConverter;
-    this.actionConverter = actionConverter;
-    this.chatChannelConverter = chatChannelConverter;
-  }
+    public GetResponsePlanConverter(
+        Converter<software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate, IncidentTemplate> incidentTemplateConverter,
+        Converter<software.amazon.awssdk.services.ssmincidents.model.Action, Action> actionConverter,
+        Converter<software.amazon.awssdk.services.ssmincidents.model.ChatChannel, ChatChannel> chatChannelConverter) {
+        this.incidentTemplateConverter = incidentTemplateConverter;
+        this.actionConverter = actionConverter;
+        this.chatChannelConverter = chatChannelConverter;
+    }
 
-  @Override
-  protected ResourceModel doForward(GetResponsePlanResponse getResponsePlanResponse) {
-    return ResourceModel.builder()
-        .arn(getResponsePlanResponse.arn())
-        .name(getResponsePlanResponse.name())
-        .displayName(getResponsePlanResponse.displayName())
-        .chatChannel(chatChannelConverter.convert(getResponsePlanResponse.chatChannel()))
-        .incidentTemplate(
-            incidentTemplateConverter.convert(getResponsePlanResponse.incidentTemplate())
-        )
-        .actions(
-            Optional.ofNullable(getResponsePlanResponse.actions())
-                .map(x -> Lists.newArrayList(actionConverter.convertAll(x)))
-                .orElse(new ArrayList<>())
-        )
-       .engagements(
-           new HashSet<>(
-               Optional.ofNullable(getResponsePlanResponse.engagements())
-                   .orElse(new ArrayList<>())
-        ))
-        .build();
-  }
+    @Override
+    protected ResourceModel doForward(GetResponsePlanResponse getResponsePlanResponse) {
+        return ResourceModel.builder()
+            .arn(getResponsePlanResponse.arn())
+            .name(getResponsePlanResponse.name())
+            .displayName(getResponsePlanResponse.displayName())
+            .chatChannel(chatChannelConverter.convert(getResponsePlanResponse.chatChannel()))
+            .incidentTemplate(
+                incidentTemplateConverter.convert(getResponsePlanResponse.incidentTemplate())
+            )
+            .actions(
+                Optional.ofNullable(getResponsePlanResponse.actions())
+                    .map(x -> Lists.newArrayList(actionConverter.convertAll(x)))
+                    .orElse(new ArrayList<>())
+            )
+            .engagements(
+                new HashSet<>(
+                    Optional.ofNullable(getResponsePlanResponse.engagements())
+                        .orElse(new ArrayList<>())
+                ))
+            .build();
+    }
 
-  @Override
-  protected GetResponsePlanResponse doBackward(ResourceModel resourceModel) {
-    throw new UnsupportedOperationException();
-  }
+    @Override
+    protected GetResponsePlanResponse doBackward(ResourceModel resourceModel) {
+        throw new UnsupportedOperationException();
+    }
 }

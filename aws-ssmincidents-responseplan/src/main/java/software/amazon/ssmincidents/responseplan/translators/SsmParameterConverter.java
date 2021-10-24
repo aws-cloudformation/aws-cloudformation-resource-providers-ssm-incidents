@@ -13,25 +13,25 @@ import java.util.stream.Stream;
 
 public class SsmParameterConverter extends Converter<Map<String, List<String>>, Set<SsmParameter>> {
 
-  private static Stream<Entry<String, String>> toFlatKeyValue(SsmParameter ssmParameter) {
-    return ssmParameter.getValues().stream().map(x -> new SimpleEntry<>(ssmParameter.getKey(), x));
-  }
+    private static Stream<Entry<String, String>> toFlatKeyValue(SsmParameter ssmParameter) {
+        return ssmParameter.getValues().stream().map(x -> new SimpleEntry<>(ssmParameter.getKey(), x));
+    }
 
-  @Override
-  protected Set<SsmParameter> doForward(Map<String, List<String>> stringListMap) {
-    return stringListMap.entrySet().stream()
-        .map(entry -> SsmParameter.builder().key(entry.getKey()).values(entry.getValue()).build())
-        .collect(Collectors.toSet());
-  }
+    @Override
+    protected Set<SsmParameter> doForward(Map<String, List<String>> stringListMap) {
+        return stringListMap.entrySet().stream()
+            .map(entry -> SsmParameter.builder().key(entry.getKey()).values(entry.getValue()).build())
+            .collect(Collectors.toSet());
+    }
 
-  @Override
-  protected Map<String, List<String>> doBackward(Set<SsmParameter> ssmParameters) {
-    return ssmParameters.stream()
-        .flatMap(SsmParameterConverter::toFlatKeyValue)
-        .collect(
-            Collectors.groupingBy(
-                Entry::getKey, Collectors.mapping(Entry::getValue, Collectors.toList())
-            )
-        );
-  }
+    @Override
+    protected Map<String, List<String>> doBackward(Set<SsmParameter> ssmParameters) {
+        return ssmParameters.stream()
+            .flatMap(SsmParameterConverter::toFlatKeyValue)
+            .collect(
+                Collectors.groupingBy(
+                    Entry::getKey, Collectors.mapping(Entry::getValue, Collectors.toList())
+                )
+            );
+    }
 }

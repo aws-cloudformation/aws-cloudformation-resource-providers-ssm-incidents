@@ -33,118 +33,117 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ReadHandlerTest extends AbstractTestBase {
 
-  @Mock
-  SsmIncidentsClient sdkClient;
-  @Mock
-  private AmazonWebServicesClientProxy proxy;
-  @Mock
-  private ProxyClient<SsmIncidentsClient> proxyClient;
-
-  @BeforeEach
-  public void setup() {
-    proxy = new AmazonWebServicesClientProxy(logger, MOCK_CREDENTIALS, () -> Duration.ofSeconds(600).toMillis());
-    sdkClient = mock(SsmIncidentsClient.class);
-    proxyClient = MOCK_PROXY(proxy, sdkClient);
-  }
-
-  @AfterEach
-  public void tear_down() {
-    verify(sdkClient, atLeastOnce()).serviceName();
-    verifyNoMoreInteractions(sdkClient);
-  }
-
-  @Test
-  public void handleRequest_SimpleSuccess() {
-    final ReadHandler handler = new ReadHandler();
-
-    final ResourceModel model = ResourceModel.builder().arn(TestData.ARN).build();
-
-    final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-        .desiredResourceState(model)
+    public static final ResourceModel RETURNED_MODEL_WITH_TAGS = ResourceModel.builder()
+        .arn(TestData.ARN)
+        .name(TestData.NAME)
+        .incidentTemplate(
+            IncidentTemplate.builder().title(TestData.TITLE).impact(TestData.IMPACT).build()
+        )
+        .engagements(new HashSet<>())
+        .actions(new ArrayList<>())
+        .tags(TestData.TAGS_1)
         .build();
+    @Mock
+    SsmIncidentsClient sdkClient;
+    @Mock
+    private AmazonWebServicesClientProxy proxy;
+    @Mock
+    private ProxyClient<SsmIncidentsClient> proxyClient;
 
-    when(proxyClient.client().getResponsePlan(any(GetResponsePlanRequest.class)))
-        .thenReturn(TestData.GET_RESPONSE_PLAN_RESPONSE_BASE);
+    @BeforeEach
+    public void setup() {
+        proxy = new AmazonWebServicesClientProxy(logger, MOCK_CREDENTIALS, () -> Duration.ofSeconds(600).toMillis());
+        sdkClient = mock(SsmIncidentsClient.class);
+        proxyClient = MOCK_PROXY(proxy, sdkClient);
+    }
 
-    when(proxyClient.client().listTagsForResource(any(ListTagsForResourceRequest.class)))
-        .thenReturn(ListTagsForResourceResponse.builder().build());
+    @AfterEach
+    public void tear_down() {
+        verify(sdkClient, atLeastOnce()).serviceName();
+        verifyNoMoreInteractions(sdkClient);
+    }
 
-    final ProgressEvent<ResourceModel, CallbackContext> response = handler
-        .handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+    @Test
+    public void handleRequest_SimpleSuccess() {
+        final ReadHandler handler = new ReadHandler();
 
-    verify(sdkClient, times(1)).listTagsForResource(any(ListTagsForResourceRequest.class));
+        final ResourceModel model = ResourceModel.builder().arn(TestData.ARN).build();
 
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
-    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-    assertThat(response.getResourceModel()).usingRecursiveComparison().isEqualTo(TestData.RETURNED_MODEL_BASE);
-    assertThat(response.getResourceModels()).isNull();
-    assertThat(response.getMessage()).isNull();
-    assertThat(response.getErrorCode()).isNull();
-  }
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+            .desiredResourceState(model)
+            .build();
 
-  @Test
-  public void handleRequest_completeSuccess() {
-    final ReadHandler handler = new ReadHandler();
-    final ResourceModel model = ResourceModel.builder().arn(TestData.ARN).build();
-    final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-                                                              .desiredResourceState(model)
-                                                              .build();
+        when(proxyClient.client().getResponsePlan(any(GetResponsePlanRequest.class)))
+            .thenReturn(TestData.GET_RESPONSE_PLAN_RESPONSE_BASE);
 
-    when(proxyClient.client().getResponsePlan(any(GetResponsePlanRequest.class)))
-        .thenReturn(TestData.GET_RESPONSE_PLAN_RESPONSE_COMPLETE);
+        when(proxyClient.client().listTagsForResource(any(ListTagsForResourceRequest.class)))
+            .thenReturn(ListTagsForResourceResponse.builder().build());
 
-    when(proxyClient.client().listTagsForResource(any(ListTagsForResourceRequest.class)))
-        .thenReturn(ListTagsForResourceResponse.builder().tags(TestData.API_TAGS_1).build());
+        final ProgressEvent<ResourceModel, CallbackContext> response = handler
+            .handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
-    final ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+        verify(sdkClient, times(1)).listTagsForResource(any(ListTagsForResourceRequest.class));
 
-    verify(sdkClient, times(1)).listTagsForResource(argThat((ListTagsForResourceRequest x) -> x.resourceArn().equals(TestData.ARN)));
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).usingRecursiveComparison().isEqualTo(TestData.RETURNED_MODEL_BASE);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
 
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
-    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-    assertThat(response.getResourceModel()).usingRecursiveComparison().isEqualTo(TestData.MODEL_COMPLETE);
-    assertThat(response.getResourceModels()).isNull();
-    assertThat(response.getMessage()).isNull();
-    assertThat(response.getErrorCode()).isNull();
-  }
+    @Test
+    public void handleRequest_completeSuccess() {
+        final ReadHandler handler = new ReadHandler();
+        final ResourceModel model = ResourceModel.builder().arn(TestData.ARN).build();
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+            .desiredResourceState(model)
+            .build();
 
-  @Test
-  public void handleRequest_WithTagsSuccess() {
-    final ReadHandler handler = new ReadHandler();
-    final ResourceModel model = ResourceModel.builder().arn(TestData.ARN).build();
-    final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-                                                              .desiredResourceState(model)
-                                                              .build();
+        when(proxyClient.client().getResponsePlan(any(GetResponsePlanRequest.class)))
+            .thenReturn(TestData.GET_RESPONSE_PLAN_RESPONSE_COMPLETE);
 
-    when(proxyClient.client().getResponsePlan(any(GetResponsePlanRequest.class)))
-        .thenReturn(TestData.GET_RESPONSE_PLAN_RESPONSE_BASE);
+        when(proxyClient.client().listTagsForResource(any(ListTagsForResourceRequest.class)))
+            .thenReturn(ListTagsForResourceResponse.builder().tags(TestData.API_TAGS_1).build());
 
-    when(proxyClient.client().listTagsForResource(any(ListTagsForResourceRequest.class)))
-        .thenReturn(ListTagsForResourceResponse.builder().tags(TestData.API_TAGS_1).build());
+        final ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
-    final ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+        verify(sdkClient, times(1)).listTagsForResource(argThat((ListTagsForResourceRequest x) -> x.resourceArn().equals(TestData.ARN)));
 
-    verify(sdkClient, times(1)).listTagsForResource(any(ListTagsForResourceRequest.class));
-    verify(sdkClient, times(1)).getResponsePlan((GetResponsePlanRequest) argThat((GetResponsePlanRequest x) -> x.arn().equals(TestData.ARN)));
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
-    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-    assertThat(response.getResourceModel()).isEqualTo(RETURNED_MODEL_WITH_TAGS);
-    assertThat(response.getResourceModels()).isNull();
-    assertThat(response.getMessage()).isNull();
-    assertThat(response.getErrorCode()).isNull();
-  }
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).usingRecursiveComparison().isEqualTo(TestData.MODEL_COMPLETE);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
 
-  public static final ResourceModel RETURNED_MODEL_WITH_TAGS = ResourceModel.builder()
-                                                              .arn(TestData.ARN)
-                                                              .name(TestData.NAME)
-                                                              .incidentTemplate(
-                                                                  IncidentTemplate.builder().title(TestData.TITLE).impact(TestData.IMPACT).build()
-                                                              )
-                                                              .engagements(new HashSet<>())
-                                                              .actions(new ArrayList<>())
-                                                              .tags(TestData.TAGS_1)
-                                                              .build();
+    @Test
+    public void handleRequest_WithTagsSuccess() {
+        final ReadHandler handler = new ReadHandler();
+        final ResourceModel model = ResourceModel.builder().arn(TestData.ARN).build();
+        final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+            .desiredResourceState(model)
+            .build();
+
+        when(proxyClient.client().getResponsePlan(any(GetResponsePlanRequest.class)))
+            .thenReturn(TestData.GET_RESPONSE_PLAN_RESPONSE_BASE);
+
+        when(proxyClient.client().listTagsForResource(any(ListTagsForResourceRequest.class)))
+            .thenReturn(ListTagsForResourceResponse.builder().tags(TestData.API_TAGS_1).build());
+
+        final ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+
+        verify(sdkClient, times(1)).listTagsForResource(any(ListTagsForResourceRequest.class));
+        verify(sdkClient, times(1)).getResponsePlan(argThat((GetResponsePlanRequest x) -> x.arn().equals(TestData.ARN)));
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(RETURNED_MODEL_WITH_TAGS);
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+    }
 }

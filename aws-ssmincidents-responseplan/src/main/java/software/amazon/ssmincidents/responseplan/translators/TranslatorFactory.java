@@ -16,46 +16,40 @@ import java.util.Map;
 import java.util.Set;
 
 public class TranslatorFactory {
+    public final static Converter<Map<String, String>, Set<Tag>> TAGS_CONVERTER = new TagsConverter();
 
-  public final static Converter<software.amazon.awssdk.services.ssmincidents.model.ChatChannel, ChatChannel> CHAT_CHANNEL_CONVERTER = new ChatChannelConverter();
+    public final static Converter<software.amazon.awssdk.services.ssmincidents.model.ChatChannel, ChatChannel> CHAT_CHANNEL_CONVERTER = new ChatChannelConverter();
 
-  public final static Converter<Map<String, List<String>>, Set<SsmParameter>> SSM_PARAMETERS_CONVERTER =
-      new SsmParameterConverter();
+    public final static Converter<Map<String, List<String>>, Set<SsmParameter>> SSM_PARAMETERS_CONVERTER =
+        new SsmParameterConverter();
 
-  public final static Converter<software.amazon.awssdk.services.ssmincidents.model.Action, Action> ACTION_CONVERTER =
-      new ActionConverter(
-      SSM_PARAMETERS_CONVERTER);
+    public final static Converter<software.amazon.awssdk.services.ssmincidents.model.Action, Action> ACTION_CONVERTER =
+        new ActionConverter(
+            SSM_PARAMETERS_CONVERTER);
 
-  public final static Converter<software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem,
-      NotificationTargetItem> NOTIFICATION_TARGET_CONVERTER = new NotificationTargetConverter();
+    public final static Converter<software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem,
+                                     NotificationTargetItem> NOTIFICATION_TARGET_CONVERTER = new NotificationTargetConverter();
 
-  public final static Converter<software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate, IncidentTemplate> INCIDENT_TEMPLATE_CONVERTER = new IncidentTemplateConverter(
-      NOTIFICATION_TARGET_CONVERTER);
-
-  public final static Converter<Map<String, String>, Set<Tag>> TAGS_CONVERTER = new TagsConverter();
-
-  public final static Converter<software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanRequest,
-      ResourceModel> CREATE_RESPONSEPLAN_CONVERTER =
-      new CreateResponsePlanConverter(
-          INCIDENT_TEMPLATE_CONVERTER,
-          ACTION_CONVERTER,
-          CHAT_CHANNEL_CONVERTER,
-          TAGS_CONVERTER
-      );
-
-
-  public final static Converter<GetResponsePlanResponse, ResourceModel> GET_RESPONSEPLAN_CONVERTER =
-      new GetResponsePlanConverter(
-      INCIDENT_TEMPLATE_CONVERTER,
-      ACTION_CONVERTER,
-      CHAT_CHANNEL_CONVERTER
-  );
-
-
-  public final static Converter<UpdateResponsePlanRequest, ResourceModel> UPDATE_RESPONSEPLAN_CONVERTER =
-      new UpdateResponsePlanConverter(
-      INCIDENT_TEMPLATE_CONVERTER,
-      ACTION_CONVERTER,
-      CHAT_CHANNEL_CONVERTER
-      );
+    public final static Converter<software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate, IncidentTemplate> INCIDENT_TEMPLATE_CONVERTER = new IncidentTemplateConverter(
+        NOTIFICATION_TARGET_CONVERTER);
+    public final static Converter<software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanRequest,
+                                     ResourceModel> CREATE_RESPONSEPLAN_CONVERTER =
+        new CreateResponsePlanConverter(
+            INCIDENT_TEMPLATE_CONVERTER,
+            ACTION_CONVERTER,
+            CHAT_CHANNEL_CONVERTER,
+            TAGS_CONVERTER
+        );
+    public final static Converter<GetResponsePlanResponse, ResourceModel> GET_RESPONSEPLAN_CONVERTER =
+        new GetResponsePlanConverter(
+            INCIDENT_TEMPLATE_CONVERTER,
+            ACTION_CONVERTER,
+            CHAT_CHANNEL_CONVERTER
+        );
+    public final static Converter<UpdateResponsePlanRequest, ResourceModel> UPDATE_RESPONSEPLAN_CONVERTER =
+        new UpdateResponsePlanConverter(
+            INCIDENT_TEMPLATE_CONVERTER,
+            ACTION_CONVERTER,
+            CHAT_CHANNEL_CONVERTER
+        );
 }

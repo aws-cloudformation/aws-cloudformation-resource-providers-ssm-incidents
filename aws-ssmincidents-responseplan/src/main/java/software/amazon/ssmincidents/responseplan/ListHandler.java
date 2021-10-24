@@ -24,14 +24,14 @@ public class ListHandler extends BaseHandlerStd {
 
         try {
             ListResponsePlansResponse awsResponse = proxyClient
-                              .injectCredentialsAndInvokeV2(awsRequest, proxyClient.client()::listResponsePlans);
+                .injectCredentialsAndInvokeV2(awsRequest, proxyClient.client()::listResponsePlans);
             String nextToken = awsResponse.nextToken();
 
             return ProgressEvent.<ResourceModel, CallbackContext>builder()
-                    .resourceModels(Translator.translateFromListRequest(awsResponse))
-                    .nextToken(nextToken)
-                    .status(OperationStatus.SUCCESS)
-                    .build();
+                .resourceModels(Translator.translateFromListRequest(awsResponse))
+                .nextToken(nextToken)
+                .status(OperationStatus.SUCCESS)
+                .build();
         } catch (final Exception e) {
             throw Translator.handleException(e);
         }
