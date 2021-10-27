@@ -1,0 +1,10 @@
+{
+  "Regions": [
+    {
+      "RegionName": "{{CurrentRegionName}}"
+    },
+    {
+      "RegionName": "{{AnotherRegionName}}"
+    }
+  ]
+}

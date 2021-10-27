@@ -1,0 +1,25 @@
+{
+    "artifact_type": "RESOURCE",
+    "typeName": "AWS::SSMIncidents::ReplicationSet",
+    "language": "java",
+    "runtime": "java8",
+    "entrypoint": "software.amazon.ssmincidents.replicationset.HandlerWrapper::handleRequest",
+    "testEntrypoint": "software.amazon.ssmincidents.replicationset.HandlerWrapper::testEntrypoint",
+    "settings": {
+        "version": false,
+        "subparser_name": null,
+        "verbose": 1,
+        "force": false,
+        "type_name": "AWS::SSMIncidents::ReplicationSet",
+        "artifact_type": "RESOURCE",
+        "namespace": [
+            "software",
+            "amazon",
+            "ssmincidents",
+            "replicationset"
+        ],
+        "codegen_template_path": "guided_aws",
+        "protocolVersion": "2.0.0"
+    },
+    "executableEntrypoint": "software.amazon.ssmincidents.replicationset.HandlerWrapperExecutable"
+}
