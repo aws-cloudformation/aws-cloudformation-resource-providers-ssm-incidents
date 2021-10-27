@@ -1,0 +1,23 @@
+{
+  "Name": "contractTestV2",
+  "IncidentTemplate": {
+    "Title": "some-title-2",
+    "Impact": 2,
+    "DedupeString": "dedupstring-2",
+    "Summary": "some-summary",
+    "NotificationTargets": [
+      {
+        "SnsTopicArn": "{{CFNContractTestSNSA}}"
+      }
+    ]
+  },
+  "ChatChannel": {
+    "ChatbotSns": [
+      "{{CFNContractTestSNSB}}"
+    ]
+  },
+  "Engagements": [
+    "arn:aws:ssm-contacts:us-west-2:123456789012:contact/plan",
+    "arn:aws:ssm-contacts:us-west-2:123456789012:contact/contact"
+  ]
+}

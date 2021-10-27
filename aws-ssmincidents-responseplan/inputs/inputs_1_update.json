@@ -1,0 +1,33 @@
+{
+  "Name": "contractTestV1",
+  "IncidentTemplate": {
+    "Title": "some-title-12",
+    "Impact": 3,
+    "DedupeString": "dedupstring-1",
+    "Summary": "some-summary",
+    "NotificationTargets": [
+      {
+        "SnsTopicArn": "{{CFNContractTestSNSA}}"
+      }
+    ]
+  },
+  "ChatChannel": {
+    "ChatbotSns": [
+      "{{CFNContractTestSNSB}}"
+    ]
+  },
+  "Engagements": [
+    "arn:aws:ssm-contacts:us-west-2:123456789012:contact/plan",
+    "arn:aws:ssm-contacts:us-west-2:123456789012:contact/contact"
+  ],
+  "Tags": [
+    {
+      "Key": "key_1",
+      "Value": "value_1"
+    },
+    {
+      "Key": "key_2",
+      "Value": "value_2"
+    }
+  ]
+}
