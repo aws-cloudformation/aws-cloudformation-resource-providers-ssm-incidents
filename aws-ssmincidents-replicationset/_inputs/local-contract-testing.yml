@@ -1,0 +1,37 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Resources:
+  FakeResource:
+    Type: AWS::CloudFormation::WaitConditionHandle
+
+Mappings:
+  AnotherRegionMap:
+    eu-north-1:
+      AnotherRegion: us-east-2
+    us-east-2:
+      AnotherRegion: eu-west-1
+    eu-west-1:
+      AnotherRegion: eu-central-1
+    eu-central-1:
+      AnotherRegion: us-east-1
+    us-east-1:
+      AnotherRegion: ap-northeast-1
+    ap-northeast-1:
+      AnotherRegion: us-west-2
+    us-west-2:
+      AnotherRegion: ap-southeast-1
+    ap-southeast-1:
+      AnotherRegion: ap-southeast-2
+    ap-southeast-2:
+      AnotherRegion: eu-north-1
+
+Outputs:
+  CurrentRegionName:
+    Value: { "Ref": "AWS::Region" }
+    Export:
+      Name: CurrentRegionName
+  AnotherRegionName:
+    Value: { "Fn::FindInMap": [ "AnotherRegionMap", { "Ref": "AWS::Region" }, "AnotherRegion" ] }
+    Export:
+      Name: AnotherRegionName
