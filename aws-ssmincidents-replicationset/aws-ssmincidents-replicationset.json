@@ -111,7 +111,7 @@
     },
     "list": {
       "permissions": [
-        "ssm-incidents:ListRegions"
+        "ssm-incidents:ListReplicationSets"
       ]
     }
   }

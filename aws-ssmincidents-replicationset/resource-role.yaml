@@ -27,7 +27,6 @@ Resources:
                 - "ssm-incidents:CreateReplicationSet"
                 - "ssm-incidents:DeleteReplicationSet"
                 - "ssm-incidents:GetReplicationSet"
-                - "ssm-incidents:ListRegions"
                 - "ssm-incidents:ListReplicationSets"
                 - "ssm-incidents:UpdateDeletionProtection"
                 - "ssm-incidents:UpdateReplicationSet"

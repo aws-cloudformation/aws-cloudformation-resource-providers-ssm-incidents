@@ -117,7 +117,7 @@ public abstract class BaseHandlerStd extends BaseHandler<CallbackContext> {
       CallbackContext context = progress.getCallbackContext();
       ResourceModel model = progress.getResourceModel();
       // skip if await should be completed before main API call
-      // and the main API call ahs already be done
+      // and the main API call has already be done
       if (beforeMainCall & context.mainAPICalled()) {
         logger.log("waitForReplicationSetToBecomeActive: beforeMainCall requested, but main call was made already. Skipping.");
         return progress;
