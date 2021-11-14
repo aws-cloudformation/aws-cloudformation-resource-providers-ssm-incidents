@@ -66,7 +66,7 @@ public class UpdateHandler extends BaseHandlerStd {
               if (!progress.getCallbackContext().mainAPICalled()) {
                 GetReplicationSetResponse currentReplicationSet = proxyClient.injectCredentialsAndInvokeV2(
                     Translator.translateToReadRequest(model),
-                    req -> proxyClient.client().getReplicationSet(req)
+                    proxyClient.client()::getReplicationSet
                 );
                 return Translator.translateToUpdateRequest(currentReplicationSet.replicationSet(), model, clientToken);
               } else {
@@ -101,7 +101,7 @@ public class UpdateHandler extends BaseHandlerStd {
       UpdateReplicationSetResponse awsResponse =
           client.injectCredentialsAndInvokeV2(
               awsRequest,
-              req -> client.client().updateReplicationSet(req)
+              client.client()::updateReplicationSet
           );
       logger.log(String.format("%s update has initiated successfully", ResourceModel.TYPE_NAME));
       return awsResponse;

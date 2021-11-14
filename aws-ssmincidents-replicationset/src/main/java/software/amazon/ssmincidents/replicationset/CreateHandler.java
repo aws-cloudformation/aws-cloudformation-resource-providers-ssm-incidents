@@ -97,7 +97,7 @@ public class CreateHandler extends BaseHandlerStd {
       try {
         ListReplicationSetsResponse awsResponse = proxyClient.injectCredentialsAndInvokeV2(
             ListReplicationSetsRequest.builder().build(),
-            req -> proxyClient.client().listReplicationSets(req)
+            proxyClient.client()::listReplicationSets
         );
         if ((awsResponse.replicationSetArns() != null) && !awsResponse.replicationSetArns().isEmpty()) {
           return ProgressEvent.defaultFailureHandler(new RuntimeException("Replication set " +
@@ -117,7 +117,7 @@ public class CreateHandler extends BaseHandlerStd {
       CreateReplicationSetResponse awsResponse;
       awsResponse = client.injectCredentialsAndInvokeV2(
           awsRequest,
-          req -> client.client().createReplicationSet(req)
+          client.client()::createReplicationSet
       );
       logger.log(String.format("%s successfully created.", ResourceModel.TYPE_NAME));
       return awsResponse;

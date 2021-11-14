@@ -84,6 +84,6 @@ public class DeleteHandler extends BaseHandlerStd {
   }
 
   private BiFunction<DeleteReplicationSetRequest, ProxyClient<SsmIncidentsClient>, DeleteReplicationSetResponse> callDeleteReplicationSet() {
-    return (request, client) -> client.injectCredentialsAndInvokeV2(request, req -> client.client().deleteReplicationSet(req));
+    return (request, client) -> client.injectCredentialsAndInvokeV2(request, client.client()::deleteReplicationSet);
   }
 }

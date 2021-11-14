@@ -26,7 +26,7 @@ public class ListHandler extends BaseHandlerStd {
     try {
       ListReplicationSetsResponse awsResponse = proxyClient.injectCredentialsAndInvokeV2(
           ListReplicationSetsRequest.builder().build(),
-          req -> proxyClient.client().listReplicationSets(req)
+          proxyClient.client()::listReplicationSets
       );
 
       ImmutableList.Builder<ResourceModel> modelsBuilder = ImmutableList.builder();

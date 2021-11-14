@@ -46,7 +46,7 @@ public class ReadHandler extends BaseHandlerStd {
     try {
       GetReplicationSetResponse awsResponse = proxyClient.injectCredentialsAndInvokeV2(
           awsRequest,
-          req -> proxyClient.client().getReplicationSet(req)
+          proxyClient.client()::getReplicationSet
       );
       Set<ReplicationRegion> replicationRegions = awsResponse.replicationSet().regionMap().entrySet().stream().map(
           regionConfig ->
