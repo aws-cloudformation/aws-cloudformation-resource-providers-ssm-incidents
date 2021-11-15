@@ -1,11 +1,6 @@
-## My Project
+## AWS CloudFormation Resource Types for AWS::SSMIncidents::ReplicationSet and AWS::SSMIncidents::ResponsePlan
 
-TODO: Fill this README out!
-
-Be sure to:
-
-* Change the title in this README
-* Edit your repository description on GitHub
+See aws-ssmincidents-replicationset and aws-ssmincidents-responseplan fodlers for the details on each resource type implementation
 
 ## Security
 
