@@ -130,7 +130,7 @@ public abstract class BaseHandlerStd extends BaseHandler<CallbackContext> {
         GetReplicationSetRequest awsRequest = Translator.translateToReadRequest(progress.getResourceModel());
         GetReplicationSetResponse awsResponse = proxyClient.injectCredentialsAndInvokeV2(
             awsRequest,
-            req -> proxyClient.client().getReplicationSet(req)
+            proxyClient.client()::getReplicationSet
         );
         ReplicationSetStatus status = awsResponse.replicationSet().status();
         logger.log("waitForReplicationSetToBecomeActive: replicationSet status = " + status.name());
@@ -209,7 +209,7 @@ public abstract class BaseHandlerStd extends BaseHandler<CallbackContext> {
       }
       UpdateDeletionProtectionResponse res = client.injectCredentialsAndInvokeV2(
           awsRequest,
-          req -> client.client().updateDeletionProtection(awsRequest)
+          client.client()::updateDeletionProtection
       );
       logger.log("callUpdateDeletionProtection: updateDeletionProtection call was successful");
       return res;
