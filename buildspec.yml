@@ -8,6 +8,9 @@ phases:
       -  pip install --upgrade 'six~=1.15'
       -  pip install pyyaml --upgrade
       -  pip install pre-commit cloudformation-cli-java-plugin
+      -  pip install --upgrade 'docker~=4.0'
+      -  pip install --upgrade 'aws-sam-translator==1.22.0'
+      -  pip install --upgrade 'pyyaml<6.0'
   build:
     commands:
       - pre-commit run --all-files
