@@ -137,3 +137,4 @@ For more information about using the `Fn::GetAtt` intrinsic function, see [Fn::G
 #### Arn
 
 The ARN of the response plan.
+
