@@ -6,6 +6,7 @@ phases:
         python: 3.7
     commands:
       -  pip install --upgrade 'six~=1.15'
+      -  pip install --upgrade aws-sam-cli aws-sam-translator cfn-lint
       -  pip install pre-commit cloudformation-cli-java-plugin
   build:
     commands:
