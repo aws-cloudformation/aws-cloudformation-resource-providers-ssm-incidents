@@ -183,6 +183,7 @@ public class UpdateHandlerTest extends AbstractTestBase {
         assertThat(updateResponsePlanRequest.incidentTemplateSummary()).isEqualTo(TestData.SUMMARY);
         assertThat(updateResponsePlanRequest.incidentTemplateDedupeString()).isEqualTo(TestData.DEDUP);
         assertThat(updateResponsePlanRequest.incidentTemplateNotificationTargets()).containsExactlyInAnyOrder(TestData.API_NOTIFICATION_TARGET_ITEM_1, TestData.API_NOTIFICATION_TARGET_ITEM_2);
+        assertThat(updateResponsePlanRequest.incidentTemplateTags()).isEqualTo(TestData.API_TAGS_1);
         assertThat(updateResponsePlanRequest.chatChannel()).isEqualTo(TestData.API_CHAT_CHANNEL);
         return true;
     }
@@ -197,6 +198,7 @@ public class UpdateHandlerTest extends AbstractTestBase {
         assertThat(updateResponsePlanRequest.incidentTemplateSummary()).isEmpty();
         assertThat(updateResponsePlanRequest.incidentTemplateDedupeString()).isEmpty();
         assertThat(updateResponsePlanRequest.incidentTemplateNotificationTargets()).isEmpty();
+        assertThat(updateResponsePlanRequest.incidentTemplateTags()).isEmpty();
         assertThat(updateResponsePlanRequest.chatChannel().empty()).isEqualTo(EmptyChatChannel.builder().build());
         return true;
     }

@@ -65,6 +65,7 @@ public class UpdateResponsePlanConverter extends
             .incidentTemplateNotificationTargets(
                 Optional.ofNullable(incidentTemplate.notificationTargets()).orElse(new ArrayList<>())
             )
+            .incidentTemplateTags(incidentTemplate.incidentTags())
             .build();
         return updateResponsePlanRequest;
     }

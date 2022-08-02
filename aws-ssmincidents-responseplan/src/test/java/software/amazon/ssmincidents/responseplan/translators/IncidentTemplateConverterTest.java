@@ -2,6 +2,7 @@ package software.amazon.ssmincidents.responseplan.translators;
 
 import com.google.common.base.Converter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -61,6 +62,29 @@ class IncidentTemplateConverterTest {
                     .build()
             ),
             Arguments.of(
+                software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate.builder()
+                    .title(TestData.TITLE)
+                    .impact(TestData.IMPACT)
+                    .incidentTags(ImmutableMap.of())
+                    .build(),
+                IncidentTemplate.builder()
+                    .title(TestData.TITLE)
+                    .impact(TestData.IMPACT)
+                    .build()
+            ),
+            Arguments.of(
+                software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate.builder()
+                    .title(TestData.TITLE)
+                    .impact(TestData.IMPACT)
+                    .incidentTags(TestData.API_TAGS_1)
+                    .build(),
+                IncidentTemplate.builder()
+                    .title(TestData.TITLE)
+                    .impact(TestData.IMPACT)
+                    .incidentTags(TestData.TAGS_1)
+                    .build()
+            ),
+            Arguments.of(
                 null, null
             )
         );
@@ -79,6 +103,7 @@ class IncidentTemplateConverterTest {
                     .impact(TestData.IMPACT)
                     .dedupeString(TestData.DEDUP)
                     .notificationTargets(new ArrayList<>())
+                    .incidentTags(ImmutableMap.of())
                     .build(),
                 IncidentTemplate.builder()
                     .title(TestData.TITLE)
@@ -94,6 +119,7 @@ class IncidentTemplateConverterTest {
                     .summary("")
                     .dedupeString("")
                     .notificationTargets(new ArrayList<>())
+                    .incidentTags(ImmutableMap.of())
                     .build(),
                 IncidentTemplate.builder()
                     .title(TestData.TITLE)
@@ -107,11 +133,13 @@ class IncidentTemplateConverterTest {
                     .summary("")
                     .dedupeString("")
                     .notificationTargets(ImmutableList.of(TestData.API_NOTIFICATION_TARGET_ITEM_1, TestData.API_NOTIFICATION_TARGET_ITEM_2))
+                    .incidentTags(TestData.API_TAGS_1)
                     .build(),
                 IncidentTemplate.builder()
                     .title(TestData.TITLE)
                     .impact(TestData.IMPACT)
                     .notificationTargets(ImmutableList.of(TestData.NOTIFICATION_TARGET_ITEM_1, TestData.NOTIFICATION_TARGET_ITEM_2))
+                    .incidentTags(TestData.TAGS_1)
                     .build()
             ),
             Arguments.of(

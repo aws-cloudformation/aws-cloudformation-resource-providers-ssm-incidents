@@ -50,6 +50,7 @@ public class CreateHandlerTest extends AbstractTestBase {
                     NotificationTargetItem.builder().snsTopicArn(TestData.CHAT_SNS_1).build(),
                     NotificationTargetItem.builder().snsTopicArn(TestData.CHAT_SNS_2).build()
                 ))
+                .incidentTags(TestData.TAGS_1)
                 .build()
         )
         .actions(ImmutableList.of(Action.builder().ssmAutomation(TestData.SSM_AUTOMATION_1).build()))
@@ -71,6 +72,7 @@ public class CreateHandlerTest extends AbstractTestBase {
                     NotificationTargetItem.builder().snsTopicArn(TestData.CHAT_SNS_1).build(),
                     NotificationTargetItem.builder().snsTopicArn(TestData.CHAT_SNS_2).build()
                 ))
+                .incidentTags(TestData.TAGS_1)
                 .build()
         )
         .actions(ImmutableList.of(Action.builder().ssmAutomation(TestData.SSM_AUTOMATION_1).build()))
@@ -182,6 +184,7 @@ public class CreateHandlerTest extends AbstractTestBase {
         assertThat(createResponsePlanRequest.incidentTemplate().summary()).isEqualTo(TestData.SUMMARY);
         assertThat(createResponsePlanRequest.incidentTemplate().dedupeString()).isEqualTo(TestData.DEDUP);
         assertThat(createResponsePlanRequest.incidentTemplate().notificationTargets()).containsExactlyInAnyOrder(TestData.API_NOTIFICATION_TARGET_ITEM_1, TestData.API_NOTIFICATION_TARGET_ITEM_2);
+        assertThat(createResponsePlanRequest.incidentTemplate().incidentTags()).isEqualTo(TestData.API_TAGS_1);
         assertThat(createResponsePlanRequest.chatChannel()).isEqualTo(TestData.API_CHAT_CHANNEL);
         return true;
     }

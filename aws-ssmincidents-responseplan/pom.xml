@@ -17,7 +17,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <awssdk.version>2.16.75</awssdk.version>
+        <!-- https://mvnrepository.com/artifact/software.amazon.awssdk/ssmincidents -->
+        <awssdk.version>2.17.228</awssdk.version>
     </properties>
 
     <dependencyManagement>
