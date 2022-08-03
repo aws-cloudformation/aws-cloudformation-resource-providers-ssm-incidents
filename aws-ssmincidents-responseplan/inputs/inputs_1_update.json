@@ -9,6 +9,16 @@
       {
         "SnsTopicArn": "{{CFNContractTestSNSA}}"
       }
+    ],
+    "IncidentTags": [
+      {
+        "Key": "incident_tag_key_1",
+        "Value": "incident_tag_value_1"
+      },
+      {
+        "Key": "incident_tag_key_2",
+        "Value": "incident_tag_value_2"
+      }
     ]
   },
   "ChatChannel": {

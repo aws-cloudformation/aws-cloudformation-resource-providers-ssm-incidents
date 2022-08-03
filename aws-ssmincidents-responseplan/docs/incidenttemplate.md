@@ -14,7 +14,8 @@ To declare this entity in your AWS CloudFormation template, use the following sy
     "<a href="#impact" title="Impact">Impact</a>" : <i>Integer</i>,
     "<a href="#notificationtargets" title="NotificationTargets">NotificationTargets</a>" : <i>[ <a href="notificationtargetitem.md">NotificationTargetItem</a>, ... ]</i>,
     "<a href="#summary" title="Summary">Summary</a>" : <i>String</i>,
-    "<a href="#title" title="Title">Title</a>" : <i>String</i>
+    "<a href="#title" title="Title">Title</a>" : <i>String</i>,
+    "<a href="#incidenttags" title="IncidentTags">IncidentTags</a>" : <i>[ <a href="tag.md">Tag</a>, ... ]</i>
 }
 </pre>
 
@@ -27,6 +28,8 @@ To declare this entity in your AWS CloudFormation template, use the following sy
       - <a href="notificationtargetitem.md">NotificationTargetItem</a></i>
 <a href="#summary" title="Summary">Summary</a>: <i>String</i>
 <a href="#title" title="Title">Title</a>: <i>String</i>
+<a href="#incidenttags" title="IncidentTags">IncidentTags</a>: <i>
+      - <a href="tag.md">Tag</a></i>
 </pre>
 
 ## Properties
@@ -88,5 +91,15 @@ _Required_: Yes
 _Type_: String
 
 _Maximum_: <code>200</code>
+
+_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
+
+#### IncidentTags
+
+Tags that get applied to incidents created by the StartIncident API action.
+
+_Required_: No
+
+_Type_: List of <a href="tag.md">Tag</a>
 
 _Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)

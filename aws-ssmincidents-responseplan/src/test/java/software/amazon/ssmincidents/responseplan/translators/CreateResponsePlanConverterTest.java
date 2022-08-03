@@ -64,6 +64,16 @@ class CreateResponsePlanConverterTest {
                     .build()
             ),
             Arguments.of(
+                software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanRequest.builder()
+                    .name(TestData.NAME)
+                    .incidentTemplate(TestData.API_INCIDENT_TEMPLATE_1)
+                    .build(),
+                ResourceModel.builder()
+                    .name(TestData.NAME)
+                    .incidentTemplate(TestData.INCIDENT_TEMPLATE_2)
+                    .build()
+            ),
+            Arguments.of(
                 null, null
             )
         );

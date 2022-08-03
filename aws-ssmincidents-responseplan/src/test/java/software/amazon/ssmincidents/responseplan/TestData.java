@@ -46,11 +46,14 @@ public class TestData {
     public static final String TAG_KEY_2 = "tag_key_2";
     public static final String TAG_VALUE_2 = "tag_value_2";
 
+    public static final String TAG_KEY_3 = "tag_key_3";
+    public static final String TAG_VALUE_3 = "tag_value_3";
+
     public static final ImmutableMap<String, String> API_TAGS_1 = ImmutableMap.of(TAG_KEY_1, TAG_VALUE_1, TAG_KEY_2, TAG_VALUE_2);
     public static final Set<Tag> TAGS_1 = ImmutableSet.of(new Tag(TestData.TAG_KEY_1, TestData.TAG_VALUE_1), new Tag(TestData.TAG_KEY_2, TestData.TAG_VALUE_2));
 
-    public static final String TAG_KEY_3 = "tag_key_3";
-    public static final String TAG_VALUE_3 = "tag_value_3";
+    public static final ImmutableMap<String, String> API_TAGS_2 = ImmutableMap.of();
+    public static final Set<Tag> TAGS_2 = ImmutableSet.of();
 
     public static final Map<String, List<String>> API_SSM_PARAMETERS = ImmutableMap.of(
         SSM_PARAMETER_KEY,
@@ -148,6 +151,7 @@ public class TestData {
                     software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem.builder().snsTopicArn(CHAT_SNS_1).build(),
                     software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem.builder().snsTopicArn(CHAT_SNS_2).build()
                 ))
+                .incidentTags(API_TAGS_1)
                 .build()
         )
         .actions(API_ACTION_1)
@@ -171,6 +175,7 @@ public class TestData {
                     NotificationTargetItem.builder().snsTopicArn(CHAT_SNS_1).build(),
                     NotificationTargetItem.builder().snsTopicArn(CHAT_SNS_2).build()
                 ))
+                .incidentTags(TAGS_1)
                 .build()
         )
         .actions(ImmutableList.of(Action.builder().ssmAutomation(SSM_AUTOMATION_1).build()))
@@ -199,6 +204,14 @@ public class TestData {
                 API_NOTIFICATION_TARGET_ITEM_1,
                 API_NOTIFICATION_TARGET_ITEM_2
             )
+            .incidentTags(API_TAGS_1)
+            .build();
+    public static final software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate API_INCIDENT_TEMPLATE_1 =
+        software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate.builder()
+            .title(TITLE)
+            .summary("")
+            .impact(IMPACT)
+            .dedupeString("")
             .build();
     public static final NotificationTargetItem NOTIFICATION_TARGET_ITEM_2 = NotificationTargetItem
         .builder()
@@ -214,7 +227,19 @@ public class TestData {
                 NOTIFICATION_TARGET_ITEM_2
             )
         )
+        .incidentTags(TAGS_1)
         .build();
+    public static final IncidentTemplate INCIDENT_TEMPLATE_1 = IncidentTemplate.builder()
+            .title(TITLE)
+            .summary(SUMMARY)
+            .impact(IMPACT)
+            .dedupeString(DEDUP)
+            .incidentTags(TAGS_2)
+            .build();
+    public static final IncidentTemplate INCIDENT_TEMPLATE_2 = IncidentTemplate.builder()
+            .title(TITLE)
+            .impact(IMPACT)
+            .build();
     public static final ResourceModel DESIRED_MODEL_BASE = ResourceModel.builder()
         .name(NAME)
         .incidentTemplate(

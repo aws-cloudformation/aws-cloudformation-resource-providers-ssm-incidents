@@ -2,6 +2,7 @@ package software.amazon.ssmincidents.responseplan.translators;
 
 import com.google.common.base.Converter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,6 +39,7 @@ class UpdateResponsePlanConverterTest {
                         TestData.API_NOTIFICATION_TARGET_ITEM_1,
                         TestData.API_NOTIFICATION_TARGET_ITEM_2
                     )
+                    .incidentTemplateTags(TestData.API_TAGS_1)
                     .engagements(ImmutableSet.of(TestData.CONTACT, TestData.ESCALATION))
                     .build(),
                 ResourceModel.builder()
@@ -52,6 +54,44 @@ class UpdateResponsePlanConverterTest {
             Arguments.of(
                 software.amazon.awssdk.services.ssmincidents.model.UpdateResponsePlanRequest.builder()
                     .arn(TestData.ARN)
+                    .actions(TestData.API_ACTION)
+                    .chatChannel(TestData.API_CHAT_CHANNEL)
+                    .incidentTemplateTitle(TestData.TITLE)
+                    .incidentTemplateSummary(TestData.SUMMARY)
+                    .incidentTemplateImpact(TestData.IMPACT)
+                    .incidentTemplateDedupeString(TestData.DEDUP)
+                    .incidentTemplateTags(TestData.API_TAGS_2)
+                    .engagements(ImmutableSet.of(TestData.CONTACT, TestData.ESCALATION))
+                    .build(),
+                ResourceModel.builder()
+                    .arn(TestData.ARN)
+                    .name(TestData.NAME)
+                    .actions(ImmutableList.of(TestData.ACTION))
+                    .chatChannel(TestData.CHAT_CHANNEL)
+                    .incidentTemplate(TestData.INCIDENT_TEMPLATE_1)
+                    .engagements(ImmutableSet.of(TestData.CONTACT, TestData.ESCALATION))
+                    .build()
+            ),
+            Arguments.of(
+                software.amazon.awssdk.services.ssmincidents.model.UpdateResponsePlanRequest.builder()
+                    .arn(TestData.ARN)
+                    .incidentTemplateTitle(TestData.TITLE)
+                    .incidentTemplateImpact(TestData.IMPACT)
+                    .incidentTemplateDedupeString("")
+                    .incidentTemplateSummary("")
+                    .actions(ImmutableList.of())
+                    .chatChannel(ChatChannel.builder().empty(EmptyChatChannel.builder().build()).build())
+                    .engagements(ImmutableList.of())
+                    .build(),
+                ResourceModel.builder()
+                    .arn(TestData.ARN)
+                    .name(TestData.NAME)
+                    .incidentTemplate(TestData.INCIDENT_TEMPLATE_2)
+                    .build()
+            ),
+            Arguments.of(
+                software.amazon.awssdk.services.ssmincidents.model.UpdateResponsePlanRequest.builder()
+                    .arn(TestData.ARN)
                     .incidentTemplateTitle(TestData.TITLE)
                     .incidentTemplateSummary(TestData.SUMMARY)
                     .incidentTemplateImpact(TestData.IMPACT)
@@ -60,6 +100,7 @@ class UpdateResponsePlanConverterTest {
                         TestData.API_NOTIFICATION_TARGET_ITEM_1,
                         TestData.API_NOTIFICATION_TARGET_ITEM_2
                     )
+                    .incidentTemplateTags(TestData.API_TAGS_1)
                     .actions(ImmutableList.of())
                     .chatChannel(ChatChannel.builder().empty(EmptyChatChannel.builder().build()).build())
                     .engagements(ImmutableList.of())
@@ -82,6 +123,7 @@ class UpdateResponsePlanConverterTest {
                         TestData.API_NOTIFICATION_TARGET_ITEM_1,
                         TestData.API_NOTIFICATION_TARGET_ITEM_2
                     )
+                    .incidentTemplateTags(TestData.API_TAGS_1)
                     .actions(ImmutableList.of())
                     .chatChannel(ChatChannel.builder().empty(EmptyChatChannel.builder().build()).build())
                     .engagements(ImmutableList.of())
@@ -91,6 +133,43 @@ class UpdateResponsePlanConverterTest {
                     .name(TestData.NAME)
                     .displayName(TestData.DISPLAY_NAME)
                     .incidentTemplate(TestData.INCIDENT_TEMPLATE)
+                    .build()
+            ),
+            Arguments.of(
+                software.amazon.awssdk.services.ssmincidents.model.UpdateResponsePlanRequest.builder()
+                    .arn(TestData.ARN)
+                    .displayName(TestData.DISPLAY_NAME)
+                    .incidentTemplateTitle(TestData.TITLE)
+                    .incidentTemplateSummary(TestData.SUMMARY)
+                    .incidentTemplateImpact(TestData.IMPACT)
+                    .incidentTemplateDedupeString(TestData.DEDUP)
+                    .incidentTemplateNotificationTargets(
+                        TestData.API_NOTIFICATION_TARGET_ITEM_1,
+                        TestData.API_NOTIFICATION_TARGET_ITEM_2
+                    )
+                    .incidentTemplateTags(ImmutableMap.of())
+                    .actions(ImmutableList.of())
+                    .chatChannel(ChatChannel.builder().empty(EmptyChatChannel.builder().build()).build())
+                    .engagements(ImmutableList.of())
+                    .build(),
+                ResourceModel.builder()
+                    .arn(TestData.ARN)
+                    .name(TestData.NAME)
+                    .displayName(TestData.DISPLAY_NAME)
+                    .incidentTemplate(
+                        IncidentTemplate.builder()
+                            .title(TestData.TITLE)
+                            .summary(TestData.SUMMARY)
+                            .impact(TestData.IMPACT)
+                            .dedupeString(TestData.DEDUP)
+                            .notificationTargets(
+                                ImmutableList.of(
+                                    TestData.NOTIFICATION_TARGET_ITEM_1,
+                                    TestData.NOTIFICATION_TARGET_ITEM_2
+                                )
+                            )
+                            .build()
+                    )
                     .build()
             ),
             Arguments.of(
@@ -105,6 +184,7 @@ class UpdateResponsePlanConverterTest {
                         TestData.API_NOTIFICATION_TARGET_ITEM_1,
                         TestData.API_NOTIFICATION_TARGET_ITEM_2
                     )
+                    .incidentTemplateTags(TestData.API_TAGS_1)
                     .actions(ImmutableList.of())
                     .chatChannel(ChatChannel.builder().empty(EmptyChatChannel.builder().build()).build())
                     .engagements(ImmutableList.of())
@@ -123,6 +203,7 @@ class UpdateResponsePlanConverterTest {
                                     TestData.NOTIFICATION_TARGET_ITEM_1, TestData.NOTIFICATION_TARGET_ITEM_2
                                 )
                             )
+                            .incidentTags(TestData.TAGS_1)
                             .build()
                     )
                     .build()
