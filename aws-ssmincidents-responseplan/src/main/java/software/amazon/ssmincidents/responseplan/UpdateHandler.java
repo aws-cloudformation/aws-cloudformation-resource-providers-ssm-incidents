@@ -47,56 +47,56 @@ public class UpdateHandler extends BaseHandlerStd {
             // for more information -> https://docs.aws.amazon.com/cloudformation-cli/latest/userguide/resource-type-test-contract.html
             // if target API does not support 'ResourceNotFoundException' then following check is required
             .then(progress ->
-                      // STEP 1.0 [initialize a proxy context]
-                      // If your service API does not return ResourceNotFoundException on update requests against some identifier (e.g; resource Name)
-                      // and instead returns a 200 even though a resource does not exist, you must first check if the resource exists here
-                      // NOTE: If your service API throws 'ResourceNotFoundException' for update requests this method is not necessary
-                      proxy.initiate("AWS-SSMIncidents-ResponsePlan::Update::PreUpdateCheck", proxyClient, progress.getResourceModel(), progress.getCallbackContext())
+                // STEP 1.0 [initialize a proxy context]
+                // If your service API does not return ResourceNotFoundException on update requests against some identifier (e.g; resource Name)
+                // and instead returns a 200 even though a resource does not exist, you must first check if the resource exists here
+                // NOTE: If your service API throws 'ResourceNotFoundException' for update requests this method is not necessary
+                proxy.initiate("AWS-SSMIncidents-ResponsePlan::Update::PreUpdateCheck", proxyClient, progress.getResourceModel(), progress.getCallbackContext())
 
-                          // STEP 1.1 [initialize a proxy context]
-                          .translateToServiceRequest(Translator::translateToReadRequest)
+                    // STEP 1.1 [initialize a proxy context]
+                    .translateToServiceRequest(Translator::translateToReadRequest)
 
-                          // STEP 1.2 [TODO: make an api call]
-                          .makeServiceCall((awsRequest, client) -> {
-                              AwsResponse awsResponse = null;
+                    // STEP 1.2 [TODO: make an api call]
+                    .makeServiceCall((awsRequest, client) -> {
+                        AwsResponse awsResponse = null;
 
-                              // TODO: add custom read resource logic
-                              // If describe request does not return ResourceNotFoundException, you must throw ResourceNotFoundException based on
-                              // awsResponse values
-                              awsResponse = client.injectCredentialsAndInvokeV2(awsRequest, proxyClient.client()::getResponsePlan);
-                              logger.log(String.format("%s has successfully been read.", ResourceModel.TYPE_NAME));
-                              return awsResponse;
-                          })
-                          .handleError((awsRequest, exception, client, model, context) -> {
-                              if (exception instanceof ResourceNotFoundException)
-                                  return ProgressEvent.failed(model, context, HandlerErrorCode.NotFound, "Not Found");
-                              throw Translator.handleException(exception);
-                          })
-                          .progress()
+                        // TODO: add custom read resource logic
+                        // If describe request does not return ResourceNotFoundException, you must throw ResourceNotFoundException based on
+                        // awsResponse values
+                        awsResponse = client.injectCredentialsAndInvokeV2(awsRequest, proxyClient.client()::getResponsePlan);
+                        logger.log(String.format("%s has successfully been read.", ResourceModel.TYPE_NAME));
+                        return awsResponse;
+                    })
+                    .handleError((awsRequest, exception, client, model, context) -> {
+                        if (exception instanceof ResourceNotFoundException)
+                            return ProgressEvent.failed(model, context, HandlerErrorCode.NotFound, "Not Found");
+                        throw Translator.handleException(exception);
+                    })
+                    .progress()
             )
             // STEP 2 [first update/stabilize progress chain - required for resource update]
             .then(progress ->
-                      proxy.initiate("AWS-SSMIncidents-ResponsePlan::Update::first", proxyClient, progress.getResourceModel(),
-                              progress.getCallbackContext())
-                          .translateToServiceRequest(Translator::translateToFirstUpdateRequest)
-                          .makeServiceCall((awsRequest, client) -> {
-                              UpdateResponsePlanResponse awsResponse = null;
-                              try {
-                                  awsResponse = client.injectCredentialsAndInvokeV2(awsRequest, proxyClient.client()::updateResponsePlan);
-                              } catch (final Exception e) {
-                                  throw Translator.handleException(e);
-                              }
-                              logger.log(String.format("%s has successfully been updated.", ResourceModel.TYPE_NAME));
-                              return awsResponse;
-                          })
-                          .done(
-                              (updateResponsePlanRequest, updateResponsePlanResponse, client, model, context) ->
-                                  ProgressEvent.defaultInProgressHandler(
-                                      context,
-                                      0,
-                                      updateModelWithArn(model, request.getDesiredResourceState().getArn())
-                                  )
-                          )
+                proxy.initiate("AWS-SSMIncidents-ResponsePlan::Update::first", proxyClient, progress.getResourceModel(),
+                        progress.getCallbackContext())
+                    .translateToServiceRequest(Translator::translateToFirstUpdateRequest)
+                    .makeServiceCall((awsRequest, client) -> {
+                        UpdateResponsePlanResponse awsResponse = null;
+                        try {
+                            awsResponse = client.injectCredentialsAndInvokeV2(awsRequest, proxyClient.client()::updateResponsePlan);
+                        } catch (final Exception e) {
+                            throw Translator.handleException(e);
+                        }
+                        logger.log(String.format("%s has successfully been updated.", ResourceModel.TYPE_NAME));
+                        return awsResponse;
+                    })
+                    .done(
+                        (updateResponsePlanRequest, updateResponsePlanResponse, client, model, context) ->
+                            ProgressEvent.defaultInProgressHandler(
+                                context,
+                                0,
+                                updateModelWithArn(model, request.getDesiredResourceState().getArn())
+                            )
+                    )
             )
             .then(progress -> updateTags(proxyClient, progress, request))
             .then(progress -> new ReadHandler().handleRequest(proxy, request, callbackContext, proxyClient, logger));
