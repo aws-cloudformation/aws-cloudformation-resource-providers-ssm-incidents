@@ -48,558 +48,558 @@ import static org.mockito.Mockito.when;
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
 public class CreateHandlerTest extends AbstractTestBase {
 
-    private AmazonWebServicesClientProxy proxy;
+  private AmazonWebServicesClientProxy proxy;
 
-    private ProxyClient<SsmIncidentsClient> proxyClient;
+  private ProxyClient<SsmIncidentsClient> proxyClient;
 
-    private CreateHandler handler;
+  private CreateHandler handler;
 
-    @Mock
-    private SsmIncidentsClient sdkClient;
+  @Mock
+  private SsmIncidentsClient sdkClient;
 
-    @BeforeEach
-    public void setup() {
-        proxy = new AmazonWebServicesClientProxy(logger, MOCK_CREDENTIALS, () -> Duration.ofSeconds(600).toMillis());
-        proxyClient = MOCK_PROXY(proxy, sdkClient);
-        handler = new CreateHandler();
-    }
+  @BeforeEach
+  public void setup() {
+    proxy = new AmazonWebServicesClientProxy(logger, MOCK_CREDENTIALS, () -> Duration.ofSeconds(600).toMillis());
+    proxyClient = MOCK_PROXY(proxy, sdkClient);
+    handler = new CreateHandler();
+  }
 
-    @AfterEach
-    public void cleanup() {
-        verify(sdkClient, atMost(5)).serviceName();
-        verifyNoMoreInteractions(sdkClient);
-    }
+  @AfterEach
+  public void cleanup() {
+    verify(sdkClient, atMost(5)).serviceName();
+    verifyNoMoreInteractions(sdkClient);
+  }
 
-    @Test
-    public void handleRequest_AwaitStabilization() {
+  @Test
+  public void handleRequest_AwaitStabilization() {
 
-        when(
-            sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
-        ).thenReturn(ListReplicationSetsResponse.builder().build());
+    when(
+        sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
+    ).thenReturn(ListReplicationSetsResponse.builder().build());
 
-        when(
-            sdkClient.createReplicationSet(any(CreateReplicationSetRequest.class))
-        ).thenReturn(
-            CreateReplicationSetResponse.builder()
-                .arn("arn")
-                .build()
-        );
+    when(
+        sdkClient.createReplicationSet(any(CreateReplicationSetRequest.class))
+    ).thenReturn(
+        CreateReplicationSetResponse.builder()
+            .arn("arn")
+            .build()
+    );
 
-        GetReplicationSetResponse getReplicationSetResponse = GetReplicationSetResponse.builder()
-            .replicationSet(ReplicationSet.builder()
-                .status(ReplicationSetStatus.CREATING)
-                .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
-                .build())
-            .build();
-
-        when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
-            .thenReturn(getReplicationSetResponse);
-
-        ResourceModel model = ResourceModel.builder()
-            .deletionProtected(false)
-            .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
-            .build();
-
-        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-            .desiredResourceState(model)
-            .build();
-
-        ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(OperationStatus.IN_PROGRESS);
-        assertThat(response.getCallbackDelaySeconds()).isEqualTo(30);
-        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
-        assertThat(response.getResourceModels()).isNull();
-        assertThat(response.getMessage()).isNull();
-        assertThat(response.getErrorCode()).isNull();
-        assertThat(response.getCallbackContext().mainAPICalled()).isTrue();
-        assertThat(response.getCallbackContext().getAwaitRetryAttemptsRemaining()).isEqualTo(239);
-        assertThat(response.getResourceModel().getArn()).isEqualTo("arn");
-        assertThat(response.getResourceModel().getDeletionProtected()).isFalse();
-        assertThat(response.getResourceModel().getRegions()).isEqualTo(model.getRegions());
-
-        ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
-        verify(sdkClient).listReplicationSets(listRequest.capture());
-        assertThat(listRequest.getValue()).isNotNull();
-
-        ArgumentCaptor<CreateReplicationSetRequest> createRequest = ArgumentCaptor.forClass(CreateReplicationSetRequest.class);
-        verify(sdkClient).createReplicationSet(createRequest.capture());
-        assertThat(createRequest.getValue())
-            .isNotNull();
-        assertThat(createRequest.getValue().regions())
-            .isNotNull()
-            .hasSize(1)
-            .isEqualTo(
-                ImmutableMap.of("us-east-1", RegionMapInputValue.builder().build())
-            );
-
-        ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
-        verify(sdkClient).getReplicationSet(getRequest.capture());
-        assertThat(getRequest.getValue()).isNotNull();
-        assertThat(getRequest.getValue().arn()).isEqualTo("arn");
-    }
-
-    @Test
-    public void handleRequest_AwaitStabilization_StillCreating() {
-
-        ReplicationSet replicationSetResponse = ReplicationSet.builder()
+    GetReplicationSetResponse getReplicationSetResponse = GetReplicationSetResponse.builder()
+        .replicationSet(ReplicationSet.builder()
             .status(ReplicationSetStatus.CREATING)
             .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
-            .build();
-        GetReplicationSetResponse getReplicationSetResponse = GetReplicationSetResponse.builder()
-            .replicationSet(replicationSetResponse)
-            .build();
+            .build())
+        .build();
 
-        when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class))).thenReturn(getReplicationSetResponse);
+    when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
+        .thenReturn(getReplicationSetResponse);
 
-        ResourceModel model = ResourceModel.builder()
-            .deletionProtected(false)
-            .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
-            .arn("arn")
-            .build();
+    ResourceModel model = ResourceModel.builder()
+        .deletionProtected(false)
+        .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
+        .build();
 
-        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-            .desiredResourceState(model)
-            .build();
+    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+        .desiredResourceState(model)
+        .build();
 
-        CallbackContext context = new CallbackContext(239, true);
+    ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
-        ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, context, proxyClient, logger);
+    assertThat(response).isNotNull();
+    assertThat(response.getStatus()).isEqualTo(OperationStatus.IN_PROGRESS);
+    assertThat(response.getCallbackDelaySeconds()).isEqualTo(30);
+    assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+    assertThat(response.getResourceModels()).isNull();
+    assertThat(response.getMessage()).isNull();
+    assertThat(response.getErrorCode()).isNull();
+    assertThat(response.getCallbackContext().mainAPICalled()).isTrue();
+    assertThat(response.getCallbackContext().getAwaitRetryAttemptsRemaining()).isEqualTo(239);
+    assertThat(response.getResourceModel().getArn()).isEqualTo("arn");
+    assertThat(response.getResourceModel().getDeletionProtected()).isFalse();
+    assertThat(response.getResourceModel().getRegions()).isEqualTo(model.getRegions());
 
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(OperationStatus.IN_PROGRESS);
-        assertThat(response.getCallbackDelaySeconds()).isEqualTo(30);
-        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
-        assertThat(response.getResourceModels()).isNull();
-        assertThat(response.getMessage()).isNull();
-        assertThat(response.getErrorCode()).isNull();
+    ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
+    verify(sdkClient).listReplicationSets(listRequest.capture());
+    assertThat(listRequest.getValue()).isNotNull();
 
-        assertThat(response.getCallbackContext().mainAPICalled()).isTrue();
-        assertThat(response.getCallbackContext().getAwaitRetryAttemptsRemaining()).isEqualTo(238);
-
-        assertThat(response.getResourceModel().getArn()).isEqualTo("arn");
-        assertThat(response.getResourceModel().getDeletionProtected()).isFalse();
-        assertThat(response.getResourceModel().getRegions()).isEqualTo(model.getRegions());
-
-        ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
-        verify(sdkClient).getReplicationSet(getRequest.capture());
-        assertThat(getRequest.getValue()).isNotNull();
-        assertThat(getRequest.getValue().arn()).isEqualTo("arn");
-    }
-
-
-    @Test
-    public void handleRequest_AwaitStabilization_CreationComplete() {
-
-        ReplicationSet replicationSetResponse1 = ReplicationSet.builder()
-            .deletionProtected(false)
-            .status(ReplicationSetStatus.ACTIVE)
-            .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
-            .build();
-        ReplicationSet replicationSetResponse2 = ReplicationSet.builder()
-            .deletionProtected(true)
-            .status(ReplicationSetStatus.ACTIVE)
-            .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
-            .build();
-        GetReplicationSetResponse getReplicationSetResponse1 = GetReplicationSetResponse.builder()
-            .replicationSet(replicationSetResponse1)
-            .build();
-        GetReplicationSetResponse getReplicationSetResponse2 = GetReplicationSetResponse.builder()
-            .replicationSet(replicationSetResponse2)
-            .build();
-
-        when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class))).thenReturn(getReplicationSetResponse1, getReplicationSetResponse2);
-
-        when(sdkClient.updateDeletionProtection(any(UpdateDeletionProtectionRequest.class)))
-            .thenReturn(UpdateDeletionProtectionResponse.builder().build());
-
-        ResourceModel model = ResourceModel.builder()
-            .deletionProtected(true)
-            .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
-            .arn("arn")
-            .build();
-
-        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-            .desiredResourceState(model)
-            .build();
-
-        CallbackContext context = new CallbackContext(239, true);
-
-        ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, context, proxyClient, logger);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
-        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
-        assertThat(response.getResourceModels()).isNull();
-        assertThat(response.getMessage()).isNull();
-        assertThat(response.getErrorCode()).isNull();
-
-        assertThat(response.getCallbackContext()).isNull();
-
-        assertThat(response.getResourceModel().getArn()).isEqualTo("arn");
-        assertThat(response.getResourceModel().getDeletionProtected()).isTrue();
-        assertThat(response.getResourceModel().getRegions()).isEqualTo(model.getRegions());
-
-        ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
-        verify(sdkClient, times(2)).getReplicationSet(getRequest.capture());
-        assertThat(getRequest.getAllValues().get(0)).isNotNull();
-        assertThat(getRequest.getAllValues().get(0)).isNotNull();
-        assertThat(getRequest.getAllValues().get(0).arn()).isEqualTo("arn");
-        assertThat(getRequest.getAllValues().get(1).arn()).isEqualTo("arn");
-
-        ArgumentCaptor<UpdateDeletionProtectionRequest> updateDeletionProtectionRequest =
-            ArgumentCaptor.forClass(UpdateDeletionProtectionRequest.class);
-        verify(sdkClient).updateDeletionProtection(updateDeletionProtectionRequest.capture());
-        assertThat(updateDeletionProtectionRequest.getValue()).isNotNull();
-        assertThat(updateDeletionProtectionRequest.getValue().arn()).isEqualTo("arn");
-        assertThat(updateDeletionProtectionRequest.getValue().deletionProtected()).isEqualTo(Boolean.TRUE);
-    }
-
-    @Test
-    public void handleRequest_AwaitStabilization_CreationTimeout() {
-
-        ReplicationSet replicationSetResponse = ReplicationSet.builder()
-            .deletionProtected(false)
-            .status(ReplicationSetStatus.CREATING)
-            .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
-            .build();
-        GetReplicationSetResponse getReplicationSetResponse = GetReplicationSetResponse.builder()
-            .replicationSet(replicationSetResponse)
-            .build();
-
-        when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class))).thenReturn(getReplicationSetResponse);
-
-        ResourceModel model = ResourceModel.builder()
-            .deletionProtected(true)
-            .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
-            .arn("arn")
-            .build();
-
-        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-            .desiredResourceState(model)
-            .build();
-
-        CallbackContext context = new CallbackContext(1, true);
-
-        ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, context, proxyClient, logger);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
-        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-        assertThat(response.getResourceModel()).isNull();
-        assertThat(response.getResourceModels()).isNull();
-        assertThat(response.getMessage()).isEqualTo("Timed out waiting for replication set to become ACTIVE");
-        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.NotStabilized);
-
-        assertThat(response.getCallbackContext()).isNull();
-
-        ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
-        verify(sdkClient).getReplicationSet(getRequest.capture());
-        assertThat(getRequest.getValue()).isNotNull();
-        assertThat(getRequest.getValue().arn()).isEqualTo("arn");
-    }
-
-    @Test
-    public void handleRequest_SimpleSuccess() {
-        when(
-            sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
-        ).thenReturn(ListReplicationSetsResponse.builder().build());
-
-        when(
-            sdkClient.createReplicationSet(any(CreateReplicationSetRequest.class))
-        ).thenReturn(
-            CreateReplicationSetResponse.builder()
-                .arn("arn")
-                .build()
+    ArgumentCaptor<CreateReplicationSetRequest> createRequest = ArgumentCaptor.forClass(CreateReplicationSetRequest.class);
+    verify(sdkClient).createReplicationSet(createRequest.capture());
+    assertThat(createRequest.getValue())
+        .isNotNull();
+    assertThat(createRequest.getValue().regions())
+        .isNotNull()
+        .hasSize(1)
+        .isEqualTo(
+            ImmutableMap.of("us-east-1", RegionMapInputValue.builder().build())
         );
 
-        when(
-            sdkClient.getReplicationSet(any(GetReplicationSetRequest.class))
-        ).thenReturn(
-            GetReplicationSetResponse.builder()
-                .replicationSet(
-                    ReplicationSet.builder()
-                        .deletionProtected(false)
-                        .status(ReplicationSetStatus.ACTIVE)
-                        .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
-                        .build()
-                )
-                .build()
-        );
+    ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
+    verify(sdkClient).getReplicationSet(getRequest.capture());
+    assertThat(getRequest.getValue()).isNotNull();
+    assertThat(getRequest.getValue().arn()).isEqualTo("arn");
+  }
 
-        ResourceModel model = ResourceModel.builder()
-            .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
-            .build();
+  @Test
+  public void handleRequest_AwaitStabilization_StillCreating() {
 
-        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-            .desiredResourceState(model)
-            .build();
+    ReplicationSet replicationSetResponse = ReplicationSet.builder()
+        .status(ReplicationSetStatus.CREATING)
+        .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
+        .build();
+    GetReplicationSetResponse getReplicationSetResponse = GetReplicationSetResponse.builder()
+        .replicationSet(replicationSetResponse)
+        .build();
 
-        ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+    when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class))).thenReturn(getReplicationSetResponse);
 
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
-        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
-        assertThat(response.getResourceModels()).isNull();
-        assertThat(response.getMessage()).isNull();
-        assertThat(response.getErrorCode()).isNull();
+    ResourceModel model = ResourceModel.builder()
+        .deletionProtected(false)
+        .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
+        .arn("arn")
+        .build();
 
-        ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
-        verify(sdkClient).listReplicationSets(listRequest.capture());
-        assertThat(listRequest.getValue()).isNotNull();
+    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+        .desiredResourceState(model)
+        .build();
 
-        ArgumentCaptor<CreateReplicationSetRequest> createRequest = ArgumentCaptor.forClass(CreateReplicationSetRequest.class);
-        verify(sdkClient).createReplicationSet(createRequest.capture());
-        assertThat(createRequest.getValue())
-            .isNotNull();
-        assertThat(createRequest.getValue().regions())
-            .isNotNull()
-            .hasSize(1)
-            .isEqualTo(
-                ImmutableMap.of("us-east-1", RegionMapInputValue.builder().build())
-            );
+    CallbackContext context = new CallbackContext(239, true);
 
-        ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
-        verify(sdkClient, times(2)).getReplicationSet(getRequest.capture());
-        assertThat(getRequest.getAllValues().get(0)).isNotNull();
-        assertThat(getRequest.getAllValues().get(1)).isNotNull();
-        assertThat(getRequest.getAllValues().get(0).arn()).isEqualTo("arn");
-        assertThat(getRequest.getAllValues().get(1).arn()).isEqualTo("arn");
-    }
+    ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, context, proxyClient, logger);
 
-    @Test
-    public void handleRequest_ServiceQuotaException() {
-        when(
-            sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
-        ).thenReturn(ListReplicationSetsResponse.builder().build());
+    assertThat(response).isNotNull();
+    assertThat(response.getStatus()).isEqualTo(OperationStatus.IN_PROGRESS);
+    assertThat(response.getCallbackDelaySeconds()).isEqualTo(30);
+    assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+    assertThat(response.getResourceModels()).isNull();
+    assertThat(response.getMessage()).isNull();
+    assertThat(response.getErrorCode()).isNull();
 
-        when(
-            sdkClient.createReplicationSet(any(CreateReplicationSetRequest.class))
-        ).thenThrow(ServiceQuotaExceededException.builder().message("test limit exceeded").build());
+    assertThat(response.getCallbackContext().mainAPICalled()).isTrue();
+    assertThat(response.getCallbackContext().getAwaitRetryAttemptsRemaining()).isEqualTo(238);
 
-        ResourceModel model = ResourceModel.builder()
-            .deletionProtected(false)
-            .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
-            .build();
+    assertThat(response.getResourceModel().getArn()).isEqualTo("arn");
+    assertThat(response.getResourceModel().getDeletionProtected()).isFalse();
+    assertThat(response.getResourceModel().getRegions()).isEqualTo(model.getRegions());
 
-        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-            .desiredResourceState(model)
-            .build();
+    ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
+    verify(sdkClient).getReplicationSet(getRequest.capture());
+    assertThat(getRequest.getValue()).isNotNull();
+    assertThat(getRequest.getValue().arn()).isEqualTo("arn");
+  }
 
-        ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
-        assertThat(response.getMessage()).isEqualTo("test limit exceeded");
-        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.AlreadyExists);
+  @Test
+  public void handleRequest_AwaitStabilization_CreationComplete() {
 
-        ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
-        verify(sdkClient).listReplicationSets(listRequest.capture());
-        assertThat(listRequest.getValue()).isNotNull();
+    ReplicationSet replicationSetResponse1 = ReplicationSet.builder()
+        .deletionProtected(false)
+        .status(ReplicationSetStatus.ACTIVE)
+        .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
+        .build();
+    ReplicationSet replicationSetResponse2 = ReplicationSet.builder()
+        .deletionProtected(true)
+        .status(ReplicationSetStatus.ACTIVE)
+        .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
+        .build();
+    GetReplicationSetResponse getReplicationSetResponse1 = GetReplicationSetResponse.builder()
+        .replicationSet(replicationSetResponse1)
+        .build();
+    GetReplicationSetResponse getReplicationSetResponse2 = GetReplicationSetResponse.builder()
+        .replicationSet(replicationSetResponse2)
+        .build();
 
-        ArgumentCaptor<CreateReplicationSetRequest> createRequest = ArgumentCaptor.forClass(CreateReplicationSetRequest.class);
-        verify(sdkClient).createReplicationSet(createRequest.capture());
-        assertThat(createRequest.getValue())
-            .isNotNull();
-        assertThat(createRequest.getValue().regions())
-            .isNotNull()
-            .hasSize(1)
-            .isEqualTo(
-                ImmutableMap.of("us-east-1", RegionMapInputValue.builder().build())
-            );
-    }
+    when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class))).thenReturn(getReplicationSetResponse1, getReplicationSetResponse2);
 
-    @Test
-    public void handleRequest_OtherException() {
-        when(
-            sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
-        ).thenReturn(ListReplicationSetsResponse.builder().build());
+    when(sdkClient.updateDeletionProtection(any(UpdateDeletionProtectionRequest.class)))
+        .thenReturn(UpdateDeletionProtectionResponse.builder().build());
 
-        when(
-            sdkClient.createReplicationSet(any(CreateReplicationSetRequest.class))
-        ).thenThrow(AccessDeniedException.builder().message("test access denied").build());
+    ResourceModel model = ResourceModel.builder()
+        .deletionProtected(true)
+        .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
+        .arn("arn")
+        .build();
 
-        ResourceModel model = ResourceModel.builder()
-            .deletionProtected(false)
-            .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
-            .build();
+    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+        .desiredResourceState(model)
+        .build();
 
-        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-            .desiredResourceState(model)
-            .build();
+    CallbackContext context = new CallbackContext(239, true);
 
-        ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+    ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, context, proxyClient, logger);
 
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
-        assertThat(response.getMessage()).isEqualTo("test access denied");
-        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.GeneralServiceException);
+    assertThat(response).isNotNull();
+    assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+    assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+    assertThat(response.getResourceModels()).isNull();
+    assertThat(response.getMessage()).isNull();
+    assertThat(response.getErrorCode()).isNull();
 
-        ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
-        verify(sdkClient).listReplicationSets(listRequest.capture());
-        assertThat(listRequest.getValue()).isNotNull();
+    assertThat(response.getCallbackContext()).isNull();
 
-        ArgumentCaptor<CreateReplicationSetRequest> createRequest = ArgumentCaptor.forClass(CreateReplicationSetRequest.class);
-        verify(sdkClient).createReplicationSet(createRequest.capture());
-        assertThat(createRequest.getValue())
-            .isNotNull();
-        assertThat(createRequest.getValue().regions())
-            .isNotNull()
-            .hasSize(1)
-            .isEqualTo(
-                ImmutableMap.of("us-east-1", RegionMapInputValue.builder().build())
-            );
-    }
+    assertThat(response.getResourceModel().getArn()).isEqualTo("arn");
+    assertThat(response.getResourceModel().getDeletionProtected()).isTrue();
+    assertThat(response.getResourceModel().getRegions()).isEqualTo(model.getRegions());
 
-    @Test
-    public void handleRequest_NonEmptyList() {
-        when(
-            sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
-        ).thenReturn(ListReplicationSetsResponse.builder().replicationSetArns("arn").build());
+    ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
+    verify(sdkClient, times(2)).getReplicationSet(getRequest.capture());
+    assertThat(getRequest.getAllValues().get(0)).isNotNull();
+    assertThat(getRequest.getAllValues().get(0)).isNotNull();
+    assertThat(getRequest.getAllValues().get(0).arn()).isEqualTo("arn");
+    assertThat(getRequest.getAllValues().get(1).arn()).isEqualTo("arn");
 
-        ResourceModel model = ResourceModel.builder()
-            .deletionProtected(false)
-            .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
-            .build();
+    ArgumentCaptor<UpdateDeletionProtectionRequest> updateDeletionProtectionRequest =
+        ArgumentCaptor.forClass(UpdateDeletionProtectionRequest.class);
+    verify(sdkClient).updateDeletionProtection(updateDeletionProtectionRequest.capture());
+    assertThat(updateDeletionProtectionRequest.getValue()).isNotNull();
+    assertThat(updateDeletionProtectionRequest.getValue().arn()).isEqualTo("arn");
+    assertThat(updateDeletionProtectionRequest.getValue().deletionProtected()).isEqualTo(Boolean.TRUE);
+  }
 
-        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-            .desiredResourceState(model)
-            .build();
+  @Test
+  public void handleRequest_AwaitStabilization_CreationTimeout() {
 
-        ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+    ReplicationSet replicationSetResponse = ReplicationSet.builder()
+        .deletionProtected(false)
+        .status(ReplicationSetStatus.CREATING)
+        .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
+        .build();
+    GetReplicationSetResponse getReplicationSetResponse = GetReplicationSetResponse.builder()
+        .replicationSet(replicationSetResponse)
+        .build();
 
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
-        assertThat(response.getMessage()).isEqualTo("Replication set arn already exists in this account");
-        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.AlreadyExists);
+    when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class))).thenReturn(getReplicationSetResponse);
 
-        ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
-        verify(sdkClient).listReplicationSets(listRequest.capture());
-        assertThat(listRequest.getValue()).isNotNull();
-    }
+    ResourceModel model = ResourceModel.builder()
+        .deletionProtected(true)
+        .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
+        .arn("arn")
+        .build();
 
-    @Test
-    public void handleRequest_SetDeletionProtection() {
-        when(
-            sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
-        ).thenReturn(ListReplicationSetsResponse.builder().replicationSetArns().build());
+    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+        .desiredResourceState(model)
+        .build();
 
-        when(
-            sdkClient.createReplicationSet(any(CreateReplicationSetRequest.class))
-        ).thenReturn(
-            CreateReplicationSetResponse.builder()
-                .arn("arn")
-                .build()
-        );
+    CallbackContext context = new CallbackContext(1, true);
 
-        when(
-            sdkClient.getReplicationSet(any(GetReplicationSetRequest.class))
-        ).thenReturn(
-            GetReplicationSetResponse.builder()
-                .replicationSet(
-                    ReplicationSet.builder()
-                        .deletionProtected(false)
-                        .status(ReplicationSetStatus.ACTIVE)
-                        .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
-                        .build()
-                )
-                .build()
-        );
+    ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, context, proxyClient, logger);
 
-        when(sdkClient.updateDeletionProtection(any(UpdateDeletionProtectionRequest.class)))
-            .thenReturn(UpdateDeletionProtectionResponse.builder().build());
+    assertThat(response).isNotNull();
+    assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+    assertThat(response.getResourceModel()).isNull();
+    assertThat(response.getResourceModels()).isNull();
+    assertThat(response.getMessage()).isEqualTo("Timed out waiting for replication set to become ACTIVE");
+    assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.NotStabilized);
 
-        ResourceModel model = ResourceModel.builder()
-            .deletionProtected(true)
-            .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
+    assertThat(response.getCallbackContext()).isNull();
+
+    ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
+    verify(sdkClient).getReplicationSet(getRequest.capture());
+    assertThat(getRequest.getValue()).isNotNull();
+    assertThat(getRequest.getValue().arn()).isEqualTo("arn");
+  }
+
+  @Test
+  public void handleRequest_SimpleSuccess() {
+    when(
+        sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
+    ).thenReturn(ListReplicationSetsResponse.builder().build());
+
+    when(
+        sdkClient.createReplicationSet(any(CreateReplicationSetRequest.class))
+    ).thenReturn(
+        CreateReplicationSetResponse.builder()
             .arn("arn")
-            .build();
+            .build()
+    );
 
-        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-            .desiredResourceState(model)
-            .build();
+    when(
+        sdkClient.getReplicationSet(any(GetReplicationSetRequest.class))
+    ).thenReturn(
+        GetReplicationSetResponse.builder()
+            .replicationSet(
+                ReplicationSet.builder()
+                    .deletionProtected(false)
+                    .status(ReplicationSetStatus.ACTIVE)
+                    .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
+                    .build()
+            )
+            .build()
+    );
 
-        ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+    ResourceModel model = ResourceModel.builder()
+        .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
+        .build();
 
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
-        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-        assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
-        assertThat(response.getResourceModels()).isNull();
-        assertThat(response.getMessage()).isNull();
-        assertThat(response.getErrorCode()).isNull();
+    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+        .desiredResourceState(model)
+        .build();
 
-        ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
-        verify(sdkClient).listReplicationSets(listRequest.capture());
-        assertThat(listRequest.getValue()).isNotNull();
+    ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
-        ArgumentCaptor<CreateReplicationSetRequest> createRequest = ArgumentCaptor.forClass(CreateReplicationSetRequest.class);
-        verify(sdkClient).createReplicationSet(createRequest.capture());
-        assertThat(createRequest.getValue())
-            .isNotNull();
-        assertThat(createRequest.getValue().regions())
-            .isNotNull()
-            .hasSize(1)
-            .isEqualTo(
-                ImmutableMap.of("us-east-1", RegionMapInputValue.builder().build())
-            );
+    assertThat(response).isNotNull();
+    assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+    assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+    assertThat(response.getResourceModels()).isNull();
+    assertThat(response.getMessage()).isNull();
+    assertThat(response.getErrorCode()).isNull();
 
-        ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
-        verify(sdkClient, times(2)).getReplicationSet(getRequest.capture());
-        assertThat(getRequest.getAllValues().get(0)).isNotNull();
-        assertThat(getRequest.getAllValues().get(1)).isNotNull();
-        assertThat(getRequest.getAllValues().get(0).arn()).isEqualTo("arn");
-        assertThat(getRequest.getAllValues().get(1).arn()).isEqualTo("arn");
+    ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
+    verify(sdkClient).listReplicationSets(listRequest.capture());
+    assertThat(listRequest.getValue()).isNotNull();
 
-        ArgumentCaptor<UpdateDeletionProtectionRequest> updateRequest = ArgumentCaptor.forClass(UpdateDeletionProtectionRequest.class);
-        verify(sdkClient).updateDeletionProtection(updateRequest.capture());
-        assertThat(updateRequest.getValue()).isNotNull();
-        assertThat(updateRequest.getValue().arn()).isEqualTo("arn");
-        assertThat(updateRequest.getValue().deletionProtected()).isEqualTo(true);
-    }
+    ArgumentCaptor<CreateReplicationSetRequest> createRequest = ArgumentCaptor.forClass(CreateReplicationSetRequest.class);
+    verify(sdkClient).createReplicationSet(createRequest.capture());
+    assertThat(createRequest.getValue())
+        .isNotNull();
+    assertThat(createRequest.getValue().regions())
+        .isNotNull()
+        .hasSize(1)
+        .isEqualTo(
+            ImmutableMap.of("us-east-1", RegionMapInputValue.builder().build())
+        );
 
-    @Test
-    public void handleRequest_ValidationException() {
-        when(
-            sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
-        ).thenReturn(ListReplicationSetsResponse.builder().build());
+    ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
+    verify(sdkClient, times(2)).getReplicationSet(getRequest.capture());
+    assertThat(getRequest.getAllValues().get(0)).isNotNull();
+    assertThat(getRequest.getAllValues().get(1)).isNotNull();
+    assertThat(getRequest.getAllValues().get(0).arn()).isEqualTo("arn");
+    assertThat(getRequest.getAllValues().get(1).arn()).isEqualTo("arn");
+  }
 
-        when(
-            sdkClient.createReplicationSet(any(CreateReplicationSetRequest.class))
-        ).thenThrow(ValidationException.builder().message("test validation exception").build());
+  @Test
+  public void handleRequest_ServiceQuotaException() {
+    when(
+        sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
+    ).thenReturn(ListReplicationSetsResponse.builder().build());
 
-        ResourceModel model = ResourceModel.builder()
-            .deletionProtected(false)
-            .regions(ImmutableSet.of(new ReplicationRegion("mars-east-1", RegionConfiguration.builder().build())))
-            .build();
+    when(
+        sdkClient.createReplicationSet(any(CreateReplicationSetRequest.class))
+    ).thenThrow(ServiceQuotaExceededException.builder().message("test limit exceeded").build());
 
-        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-            .desiredResourceState(model)
-            .build();
+    ResourceModel model = ResourceModel.builder()
+        .deletionProtected(false)
+        .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
+        .build();
 
-        ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+        .desiredResourceState(model)
+        .build();
 
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
-        assertThat(response.getMessage()).isEqualTo("test validation exception");
-        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+    ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
-        ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
-        verify(sdkClient).listReplicationSets(listRequest.capture());
-        assertThat(listRequest.getValue()).isNotNull();
+    assertThat(response).isNotNull();
+    assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+    assertThat(response.getMessage()).isEqualTo("test limit exceeded");
+    assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.AlreadyExists);
 
-        ArgumentCaptor<CreateReplicationSetRequest> createRequest = ArgumentCaptor.forClass(CreateReplicationSetRequest.class);
-        verify(sdkClient).createReplicationSet(createRequest.capture());
-        assertThat(createRequest.getValue())
-            .isNotNull();
-        assertThat(createRequest.getValue().regions())
-            .isNotNull()
-            .hasSize(1)
-            .isEqualTo(
-                ImmutableMap.of("mars-east-1", RegionMapInputValue.builder().build())
-            );
-    }
+    ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
+    verify(sdkClient).listReplicationSets(listRequest.capture());
+    assertThat(listRequest.getValue()).isNotNull();
+
+    ArgumentCaptor<CreateReplicationSetRequest> createRequest = ArgumentCaptor.forClass(CreateReplicationSetRequest.class);
+    verify(sdkClient).createReplicationSet(createRequest.capture());
+    assertThat(createRequest.getValue())
+        .isNotNull();
+    assertThat(createRequest.getValue().regions())
+        .isNotNull()
+        .hasSize(1)
+        .isEqualTo(
+            ImmutableMap.of("us-east-1", RegionMapInputValue.builder().build())
+        );
+  }
+
+  @Test
+  public void handleRequest_OtherException() {
+    when(
+        sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
+    ).thenReturn(ListReplicationSetsResponse.builder().build());
+
+    when(
+        sdkClient.createReplicationSet(any(CreateReplicationSetRequest.class))
+    ).thenThrow(AccessDeniedException.builder().message("test access denied").build());
+
+    ResourceModel model = ResourceModel.builder()
+        .deletionProtected(false)
+        .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
+        .build();
+
+    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+        .desiredResourceState(model)
+        .build();
+
+    ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+
+    assertThat(response).isNotNull();
+    assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+    assertThat(response.getMessage()).isEqualTo("test access denied");
+    assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.GeneralServiceException);
+
+    ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
+    verify(sdkClient).listReplicationSets(listRequest.capture());
+    assertThat(listRequest.getValue()).isNotNull();
+
+    ArgumentCaptor<CreateReplicationSetRequest> createRequest = ArgumentCaptor.forClass(CreateReplicationSetRequest.class);
+    verify(sdkClient).createReplicationSet(createRequest.capture());
+    assertThat(createRequest.getValue())
+        .isNotNull();
+    assertThat(createRequest.getValue().regions())
+        .isNotNull()
+        .hasSize(1)
+        .isEqualTo(
+            ImmutableMap.of("us-east-1", RegionMapInputValue.builder().build())
+        );
+  }
+
+  @Test
+  public void handleRequest_NonEmptyList() {
+    when(
+        sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
+    ).thenReturn(ListReplicationSetsResponse.builder().replicationSetArns("arn").build());
+
+    ResourceModel model = ResourceModel.builder()
+        .deletionProtected(false)
+        .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
+        .build();
+
+    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+        .desiredResourceState(model)
+        .build();
+
+    ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+
+    assertThat(response).isNotNull();
+    assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+    assertThat(response.getMessage()).isEqualTo("Replication set arn already exists in this account");
+    assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.AlreadyExists);
+
+    ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
+    verify(sdkClient).listReplicationSets(listRequest.capture());
+    assertThat(listRequest.getValue()).isNotNull();
+  }
+
+  @Test
+  public void handleRequest_SetDeletionProtection() {
+    when(
+        sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
+    ).thenReturn(ListReplicationSetsResponse.builder().replicationSetArns().build());
+
+    when(
+        sdkClient.createReplicationSet(any(CreateReplicationSetRequest.class))
+    ).thenReturn(
+        CreateReplicationSetResponse.builder()
+            .arn("arn")
+            .build()
+    );
+
+    when(
+        sdkClient.getReplicationSet(any(GetReplicationSetRequest.class))
+    ).thenReturn(
+        GetReplicationSetResponse.builder()
+            .replicationSet(
+                ReplicationSet.builder()
+                    .deletionProtected(false)
+                    .status(ReplicationSetStatus.ACTIVE)
+                    .regionMap(ImmutableMap.of("us-east-1", RegionInfo.builder().build()))
+                    .build()
+            )
+            .build()
+    );
+
+    when(sdkClient.updateDeletionProtection(any(UpdateDeletionProtectionRequest.class)))
+        .thenReturn(UpdateDeletionProtectionResponse.builder().build());
+
+    ResourceModel model = ResourceModel.builder()
+        .deletionProtected(true)
+        .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
+        .arn("arn")
+        .build();
+
+    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+        .desiredResourceState(model)
+        .build();
+
+    ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+
+    assertThat(response).isNotNull();
+    assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+    assertThat(response.getResourceModel()).isEqualTo(request.getDesiredResourceState());
+    assertThat(response.getResourceModels()).isNull();
+    assertThat(response.getMessage()).isNull();
+    assertThat(response.getErrorCode()).isNull();
+
+    ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
+    verify(sdkClient).listReplicationSets(listRequest.capture());
+    assertThat(listRequest.getValue()).isNotNull();
+
+    ArgumentCaptor<CreateReplicationSetRequest> createRequest = ArgumentCaptor.forClass(CreateReplicationSetRequest.class);
+    verify(sdkClient).createReplicationSet(createRequest.capture());
+    assertThat(createRequest.getValue())
+        .isNotNull();
+    assertThat(createRequest.getValue().regions())
+        .isNotNull()
+        .hasSize(1)
+        .isEqualTo(
+            ImmutableMap.of("us-east-1", RegionMapInputValue.builder().build())
+        );
+
+    ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
+    verify(sdkClient, times(2)).getReplicationSet(getRequest.capture());
+    assertThat(getRequest.getAllValues().get(0)).isNotNull();
+    assertThat(getRequest.getAllValues().get(1)).isNotNull();
+    assertThat(getRequest.getAllValues().get(0).arn()).isEqualTo("arn");
+    assertThat(getRequest.getAllValues().get(1).arn()).isEqualTo("arn");
+
+    ArgumentCaptor<UpdateDeletionProtectionRequest> updateRequest = ArgumentCaptor.forClass(UpdateDeletionProtectionRequest.class);
+    verify(sdkClient).updateDeletionProtection(updateRequest.capture());
+    assertThat(updateRequest.getValue()).isNotNull();
+    assertThat(updateRequest.getValue().arn()).isEqualTo("arn");
+    assertThat(updateRequest.getValue().deletionProtected()).isEqualTo(true);
+  }
+
+  @Test
+  public void handleRequest_ValidationException() {
+    when(
+        sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class))
+    ).thenReturn(ListReplicationSetsResponse.builder().build());
+
+    when(
+        sdkClient.createReplicationSet(any(CreateReplicationSetRequest.class))
+    ).thenThrow(ValidationException.builder().message("test validation exception").build());
+
+    ResourceModel model = ResourceModel.builder()
+        .deletionProtected(false)
+        .regions(ImmutableSet.of(new ReplicationRegion("mars-east-1", RegionConfiguration.builder().build())))
+        .build();
+
+    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+        .desiredResourceState(model)
+        .build();
+
+    ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+
+    assertThat(response).isNotNull();
+    assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+    assertThat(response.getMessage()).isEqualTo("test validation exception");
+    assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+
+    ArgumentCaptor<ListReplicationSetsRequest> listRequest = ArgumentCaptor.forClass(ListReplicationSetsRequest.class);
+    verify(sdkClient).listReplicationSets(listRequest.capture());
+    assertThat(listRequest.getValue()).isNotNull();
+
+    ArgumentCaptor<CreateReplicationSetRequest> createRequest = ArgumentCaptor.forClass(CreateReplicationSetRequest.class);
+    verify(sdkClient).createReplicationSet(createRequest.capture());
+    assertThat(createRequest.getValue())
+        .isNotNull();
+    assertThat(createRequest.getValue().regions())
+        .isNotNull()
+        .hasSize(1)
+        .isEqualTo(
+            ImmutableMap.of("mars-east-1", RegionMapInputValue.builder().build())
+        );
+  }
 }

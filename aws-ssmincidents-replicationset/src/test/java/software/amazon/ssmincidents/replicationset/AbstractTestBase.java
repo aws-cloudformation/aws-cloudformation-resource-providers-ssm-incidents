@@ -15,54 +15,54 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public class AbstractTestBase {
-    protected static final Credentials MOCK_CREDENTIALS;
-    protected static final LoggerProxy logger;
+  protected static final Credentials MOCK_CREDENTIALS;
+  protected static final LoggerProxy logger;
 
-    static {
-        MOCK_CREDENTIALS = new Credentials("accessKey", "secretKey", "token");
-        logger = new LoggerProxy();
-    }
+  static {
+    MOCK_CREDENTIALS = new Credentials("accessKey", "secretKey", "token");
+    logger = new LoggerProxy();
+  }
 
-    static ProxyClient<SsmIncidentsClient> MOCK_PROXY(
-        AmazonWebServicesClientProxy proxy,
-        SsmIncidentsClient SsmIncidentsClient) {
-        return new ProxyClient<SsmIncidentsClient>() {
-            @Override
-            public <RequestT extends AwsRequest, ResponseT extends AwsResponse> ResponseT
-            injectCredentialsAndInvokeV2(RequestT request, Function<RequestT, ResponseT> requestFunction) {
-                return proxy.injectCredentialsAndInvokeV2(request, requestFunction);
-            }
+  static ProxyClient<SsmIncidentsClient> MOCK_PROXY(
+      AmazonWebServicesClientProxy proxy,
+      SsmIncidentsClient SsmIncidentsClient) {
+    return new ProxyClient<SsmIncidentsClient>() {
+      @Override
+      public <RequestT extends AwsRequest, ResponseT extends AwsResponse> ResponseT
+      injectCredentialsAndInvokeV2(RequestT request, Function<RequestT, ResponseT> requestFunction) {
+        return proxy.injectCredentialsAndInvokeV2(request, requestFunction);
+      }
 
-            @Override
-            public <RequestT extends AwsRequest, ResponseT extends AwsResponse>
-            CompletableFuture<ResponseT>
-            injectCredentialsAndInvokeV2Async(RequestT request, Function<RequestT, CompletableFuture<ResponseT>> requestFunction) {
-                throw new UnsupportedOperationException();
-            }
+      @Override
+      public <RequestT extends AwsRequest, ResponseT extends AwsResponse>
+      CompletableFuture<ResponseT>
+      injectCredentialsAndInvokeV2Async(RequestT request, Function<RequestT, CompletableFuture<ResponseT>> requestFunction) {
+        throw new UnsupportedOperationException();
+      }
 
-            @Override
-            public <RequestT extends AwsRequest, ResponseT extends AwsResponse, IterableT extends SdkIterable<ResponseT>>
-            IterableT
-            injectCredentialsAndInvokeIterableV2(RequestT request, Function<RequestT, IterableT> requestFunction) {
-                return proxy.injectCredentialsAndInvokeIterableV2(request, requestFunction);
-            }
+      @Override
+      public <RequestT extends AwsRequest, ResponseT extends AwsResponse, IterableT extends SdkIterable<ResponseT>>
+      IterableT
+      injectCredentialsAndInvokeIterableV2(RequestT request, Function<RequestT, IterableT> requestFunction) {
+        return proxy.injectCredentialsAndInvokeIterableV2(request, requestFunction);
+      }
 
-            @Override
-            public <RequestT extends AwsRequest, ResponseT extends AwsResponse> ResponseInputStream<ResponseT>
-            injectCredentialsAndInvokeV2InputStream(RequestT requestT, Function<RequestT, ResponseInputStream<ResponseT>> function) {
-                throw new UnsupportedOperationException();
-            }
+      @Override
+      public <RequestT extends AwsRequest, ResponseT extends AwsResponse> ResponseInputStream<ResponseT>
+      injectCredentialsAndInvokeV2InputStream(RequestT requestT, Function<RequestT, ResponseInputStream<ResponseT>> function) {
+        throw new UnsupportedOperationException();
+      }
 
-            @Override
-            public <RequestT extends AwsRequest, ResponseT extends AwsResponse> ResponseBytes<ResponseT>
-            injectCredentialsAndInvokeV2Bytes(RequestT requestT, Function<RequestT, ResponseBytes<ResponseT>> function) {
-                throw new UnsupportedOperationException();
-            }
+      @Override
+      public <RequestT extends AwsRequest, ResponseT extends AwsResponse> ResponseBytes<ResponseT>
+      injectCredentialsAndInvokeV2Bytes(RequestT requestT, Function<RequestT, ResponseBytes<ResponseT>> function) {
+        throw new UnsupportedOperationException();
+      }
 
-            @Override
-            public SsmIncidentsClient client() {
-                return SsmIncidentsClient;
-            }
-        };
-    }
+      @Override
+      public SsmIncidentsClient client() {
+        return SsmIncidentsClient;
+      }
+    };
+  }
 }

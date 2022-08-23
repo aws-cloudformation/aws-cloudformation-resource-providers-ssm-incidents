@@ -230,16 +230,16 @@ public class TestData {
         .incidentTags(TAGS_1)
         .build();
     public static final IncidentTemplate INCIDENT_TEMPLATE_1 = IncidentTemplate.builder()
-        .title(TITLE)
-        .summary(SUMMARY)
-        .impact(IMPACT)
-        .dedupeString(DEDUP)
-        .incidentTags(TAGS_2)
-        .build();
+            .title(TITLE)
+            .summary(SUMMARY)
+            .impact(IMPACT)
+            .dedupeString(DEDUP)
+            .incidentTags(TAGS_2)
+            .build();
     public static final IncidentTemplate INCIDENT_TEMPLATE_2 = IncidentTemplate.builder()
-        .title(TITLE)
-        .impact(IMPACT)
-        .build();
+            .title(TITLE)
+            .impact(IMPACT)
+            .build();
     public static final ResourceModel DESIRED_MODEL_BASE = ResourceModel.builder()
         .name(NAME)
         .incidentTemplate(

@@ -20,107 +20,107 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class CreateHandler extends BaseHandlerStd {
-    private Logger logger;
+  private Logger logger;
 
-    protected ProgressEvent<ResourceModel, CallbackContext> handleRequest(
-        AmazonWebServicesClientProxy proxy,
-        ResourceHandlerRequest<ResourceModel> request,
-        CallbackContext callbackContext,
-        ProxyClient<SsmIncidentsClient> proxyClient,
-        Logger logger) {
+  protected ProgressEvent<ResourceModel, CallbackContext> handleRequest(
+      AmazonWebServicesClientProxy proxy,
+      ResourceHandlerRequest<ResourceModel> request,
+      CallbackContext callbackContext,
+      ProxyClient<SsmIncidentsClient> proxyClient,
+      Logger logger) {
 
-        this.logger = logger;
+    this.logger = logger;
 
-        return ProgressEvent.progress(request.getDesiredResourceState(), callbackContext)
-            .then(createReplicationSetPreCheck(proxyClient))
-            .then(initiateReplicationSetCreation(proxy, proxyClient, request.getClientRequestToken()))
-            .then(waitForReplicationSetToBecomeActive(
-                proxyClient,
-                false,
-                false,
-                logger,
-                "Timed out waiting for replication set to become ACTIVE"))
-            .then(updateReplicationSetDeletionProtection(proxy, proxyClient, "Create", logger))
-            .then(progress -> new ReadHandler().handleRequest(proxy, request, callbackContext, proxyClient, logger));
-    }
+    return ProgressEvent.progress(request.getDesiredResourceState(), callbackContext)
+        .then(createReplicationSetPreCheck(proxyClient))
+        .then(initiateReplicationSetCreation(proxy, proxyClient, request.getClientRequestToken()))
+        .then(waitForReplicationSetToBecomeActive(
+            proxyClient,
+            false,
+            false,
+            logger,
+            "Timed out waiting for replication set to become ACTIVE"))
+        .then(updateReplicationSetDeletionProtection(proxy, proxyClient, "Create", logger))
+        .then(progress -> new ReadHandler().handleRequest(proxy, request, callbackContext, proxyClient, logger));
+  }
 
-    private Function<ProgressEvent<ResourceModel, CallbackContext>, ProgressEvent<ResourceModel, CallbackContext>> initiateReplicationSetCreation(
-        AmazonWebServicesClientProxy proxy,
-        ProxyClient<SsmIncidentsClient> proxyClient,
-        String clientToken
-    ) {
-        return progress -> {
-            // if it already has been called, it's a no-op
-            if (progress.getCallbackContext().mainAPICalled()) {
-                logger.log("initiateReplicationSetCreation: mainAPICalled = true, skipping.");
-                return ProgressEvent.defaultInProgressHandler(progress.getCallbackContext(), 0, progress.getResourceModel());
+  private Function<ProgressEvent<ResourceModel, CallbackContext>, ProgressEvent<ResourceModel, CallbackContext>> initiateReplicationSetCreation(
+      AmazonWebServicesClientProxy proxy,
+      ProxyClient<SsmIncidentsClient> proxyClient,
+      String clientToken
+  ) {
+    return progress -> {
+      // if it already has been called, it's a no-op
+      if (progress.getCallbackContext().mainAPICalled()) {
+        logger.log("initiateReplicationSetCreation: mainAPICalled = true, skipping.");
+        return ProgressEvent.defaultInProgressHandler(progress.getCallbackContext(), 0, progress.getResourceModel());
+      }
+      return proxy
+          .initiate(
+              "ssm-incidents::CreateReplicationSet",
+              proxyClient,
+              progress.getResourceModel(),
+              progress.getCallbackContext()
+          )
+          .translateToServiceRequest(model -> Translator.translateToCreateRequest(model, clientToken))
+          .makeServiceCall(callCreateReplicationSet())
+          .handleError((awsRequest, exception, client, model, context) -> {
+            StringWriter sw = new StringWriter();
+            exception.printStackTrace(new PrintWriter(sw));
+            logger.log("error occurred while calling crateReplicationSet: " + sw.toString());
+            if (exception instanceof ServiceQuotaExceededException) {
+              return ProgressEvent.defaultFailureHandler(exception, HandlerErrorCode.AlreadyExists);
             }
-            return proxy
-                .initiate(
-                    "ssm-incidents::CreateReplicationSet",
-                    proxyClient,
-                    progress.getResourceModel(),
-                    progress.getCallbackContext()
-                )
-                .translateToServiceRequest(model -> Translator.translateToCreateRequest(model, clientToken))
-                .makeServiceCall(callCreateReplicationSet())
-                .handleError((awsRequest, exception, client, model, context) -> {
-                    StringWriter sw = new StringWriter();
-                    exception.printStackTrace(new PrintWriter(sw));
-                    logger.log("error occurred while calling crateReplicationSet: " + sw.toString());
-                    if (exception instanceof ServiceQuotaExceededException) {
-                        return ProgressEvent.defaultFailureHandler(exception, HandlerErrorCode.AlreadyExists);
-                    }
-                    if (exception instanceof ValidationException) {
-                        return ProgressEvent.defaultFailureHandler(exception, HandlerErrorCode.InvalidRequest);
-                    }
-                    return ProgressEvent.defaultFailureHandler(exception, HandlerErrorCode.GeneralServiceException);
-                })
-                .done((awsRequest, awsResponse, client, model, context) -> {
-                    logger.log("crateReplicationSet called successfully");
-                    model.setArn(awsResponse.arn());
-                    context.setMainAPICalled(true);
-                    return ProgressEvent.defaultInProgressHandler(context, 0, model);
-                });
-        };
-    }
-
-    private Function<ProgressEvent<ResourceModel, CallbackContext>, ProgressEvent<ResourceModel, CallbackContext>> createReplicationSetPreCheck(ProxyClient<SsmIncidentsClient> proxyClient) {
-        return progress -> {
-            CallbackContext context = progress.getCallbackContext();
-            ResourceModel model = progress.getResourceModel();
-            // only check for replicationSet existence before the API call is made
-            if (context.mainAPICalled()) {
-                logger.log("createReplicationSetPreCheck: mainAPICalled = true, skipping.");
-                return ProgressEvent.defaultInProgressHandler(progress.getCallbackContext(), 0, progress.getResourceModel());
+            if (exception instanceof ValidationException) {
+              return ProgressEvent.defaultFailureHandler(exception, HandlerErrorCode.InvalidRequest);
             }
-            try {
-                ListReplicationSetsResponse awsResponse = proxyClient.injectCredentialsAndInvokeV2(
-                    ListReplicationSetsRequest.builder().build(),
-                    proxyClient.client()::listReplicationSets
-                );
-                if ((awsResponse.replicationSetArns() != null) && !awsResponse.replicationSetArns().isEmpty()) {
-                    return ProgressEvent.defaultFailureHandler(new RuntimeException("Replication set " +
-                        awsResponse.replicationSetArns().get(0) +
-                        " already exists in this account"), HandlerErrorCode.AlreadyExists);
-                }
-                logger.log("createReplicationSetPreCheck: no existing replication sets found");
-                return ProgressEvent.defaultInProgressHandler(context, 0, model);
-            } catch (Exception exception) {
-                return ProgressEvent.defaultFailureHandler(exception, HandlerErrorCode.GeneralServiceException);
-            }
-        };
-    }
+            return ProgressEvent.defaultFailureHandler(exception, HandlerErrorCode.GeneralServiceException);
+          })
+          .done((awsRequest, awsResponse, client, model, context) -> {
+            logger.log("crateReplicationSet called successfully");
+            model.setArn(awsResponse.arn());
+            context.setMainAPICalled(true);
+            return ProgressEvent.defaultInProgressHandler(context, 0, model);
+          });
+    };
+  }
 
-    private BiFunction<CreateReplicationSetRequest, ProxyClient<SsmIncidentsClient>, CreateReplicationSetResponse> callCreateReplicationSet() {
-        return (awsRequest, client) -> {
-            CreateReplicationSetResponse awsResponse;
-            awsResponse = client.injectCredentialsAndInvokeV2(
-                awsRequest,
-                client.client()::createReplicationSet
-            );
-            logger.log(String.format("%s successfully created.", ResourceModel.TYPE_NAME));
-            return awsResponse;
-        };
-    }
+  private Function<ProgressEvent<ResourceModel, CallbackContext>, ProgressEvent<ResourceModel, CallbackContext>> createReplicationSetPreCheck(ProxyClient<SsmIncidentsClient> proxyClient) {
+    return progress -> {
+      CallbackContext context = progress.getCallbackContext();
+      ResourceModel model = progress.getResourceModel();
+      // only check for replicationSet existence before the API call is made
+      if (context.mainAPICalled()) {
+        logger.log("createReplicationSetPreCheck: mainAPICalled = true, skipping.");
+        return ProgressEvent.defaultInProgressHandler(progress.getCallbackContext(), 0, progress.getResourceModel());
+      }
+      try {
+        ListReplicationSetsResponse awsResponse = proxyClient.injectCredentialsAndInvokeV2(
+            ListReplicationSetsRequest.builder().build(),
+            proxyClient.client()::listReplicationSets
+        );
+        if ((awsResponse.replicationSetArns() != null) && !awsResponse.replicationSetArns().isEmpty()) {
+          return ProgressEvent.defaultFailureHandler(new RuntimeException("Replication set " +
+              awsResponse.replicationSetArns().get(0) +
+              " already exists in this account"), HandlerErrorCode.AlreadyExists);
+        }
+        logger.log("createReplicationSetPreCheck: no existing replication sets found");
+        return ProgressEvent.defaultInProgressHandler(context, 0, model);
+      } catch (Exception exception) {
+        return ProgressEvent.defaultFailureHandler(exception, HandlerErrorCode.GeneralServiceException);
+      }
+    };
+  }
+
+  private BiFunction<CreateReplicationSetRequest, ProxyClient<SsmIncidentsClient>, CreateReplicationSetResponse> callCreateReplicationSet() {
+    return (awsRequest, client) -> {
+      CreateReplicationSetResponse awsResponse;
+      awsResponse = client.injectCredentialsAndInvokeV2(
+          awsRequest,
+          client.client()::createReplicationSet
+      );
+      logger.log(String.format("%s successfully created.", ResourceModel.TYPE_NAME));
+      return awsResponse;
+    };
+  }
 }
