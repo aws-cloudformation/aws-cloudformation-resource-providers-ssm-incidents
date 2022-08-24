@@ -6,8 +6,7 @@ phases:
         python: 3.7
     commands:
       -  pip install --upgrade 'six~=1.15'
-      -  pip install --upgrade requests awscli
-      -  pip install --upgrade aws-sam-cli aws-sam-translator cfn-lint boto3
+      -  pip install --upgrade aws-sam-cli aws-sam-translator cfn-lint boto3 requests awscli botocore
       -  pip install pre-commit cloudformation-cli-java-plugin
   build:
     commands:
