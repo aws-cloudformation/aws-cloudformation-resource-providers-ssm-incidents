@@ -18,13 +18,13 @@ import software.amazon.cloudformation.proxy.StdCallbackContext;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CallbackContext extends StdCallbackContext {
-    @JsonProperty("retryAttemptsRemaining")
-    private Integer awaitRetryAttemptsRemaining;
+  @JsonProperty("retryAttemptsRemaining")
+  private Integer awaitRetryAttemptsRemaining;
 
-    @JsonProperty("mainAPICalled")
-    private Boolean mainAPICalled;
+  @JsonProperty("mainAPICalled")
+  private Boolean mainAPICalled;
 
-    public boolean mainAPICalled() {
-        return (mainAPICalled != null) && mainAPICalled;
-    }
+  public boolean mainAPICalled() {
+    return (mainAPICalled != null) && mainAPICalled;
+  }
 }

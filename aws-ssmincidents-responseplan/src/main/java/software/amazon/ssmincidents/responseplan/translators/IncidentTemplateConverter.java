@@ -16,7 +16,7 @@ public class IncidentTemplateConverter extends
     Converter<software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate, IncidentTemplate> {
 
     Converter<software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem,
-        software.amazon.ssmincidents.responseplan.NotificationTargetItem> notificationTargetConverter;
+                 software.amazon.ssmincidents.responseplan.NotificationTargetItem> notificationTargetConverter;
 
     Converter<Map<String, String>, Set<Tag>> incidentTagsConverter;
 
@@ -47,7 +47,7 @@ public class IncidentTemplateConverter extends
             );
         }
 
-        if (incidentTemplate.incidentTags() != null && !incidentTemplate.incidentTags().isEmpty()) {
+        if(incidentTemplate.incidentTags() != null && !incidentTemplate.incidentTags().isEmpty()) {
             builder.incidentTags(incidentTagsConverter.convert(incidentTemplate.incidentTags()));
         }
         return builder.build();

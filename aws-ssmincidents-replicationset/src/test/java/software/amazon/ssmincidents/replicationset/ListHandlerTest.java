@@ -30,60 +30,60 @@ import static org.mockito.Mockito.when;
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
 public class ListHandlerTest extends AbstractTestBase {
 
-    private AmazonWebServicesClientProxy proxy;
+  private AmazonWebServicesClientProxy proxy;
 
-    private ProxyClient<SsmIncidentsClient> proxyClient;
+  private ProxyClient<SsmIncidentsClient> proxyClient;
 
-    @Mock
-    private SsmIncidentsClient sdkClient;
+  @Mock
+  private SsmIncidentsClient sdkClient;
 
-    private ListHandler handler;
+  private ListHandler handler;
 
-    @BeforeEach
-    public void setup() {
-        proxy = new AmazonWebServicesClientProxy(logger, MOCK_CREDENTIALS, () -> Duration.ofSeconds(600).toMillis());
-        proxyClient = MOCK_PROXY(proxy, sdkClient);
-        handler = new ListHandler();
-    }
+  @BeforeEach
+  public void setup() {
+    proxy = new AmazonWebServicesClientProxy(logger, MOCK_CREDENTIALS, () -> Duration.ofSeconds(600).toMillis());
+    proxyClient = MOCK_PROXY(proxy, sdkClient);
+    handler = new ListHandler();
+  }
 
-    @AfterEach
-    public void clueanup() {
-        verify(sdkClient, atMost(5)).serviceName();
-        verifyNoMoreInteractions(sdkClient);
-    }
+  @AfterEach
+  public void clueanup() {
+    verify(sdkClient, atMost(5)).serviceName();
+    verifyNoMoreInteractions(sdkClient);
+  }
 
-    @Test
-    public void handleRequest_SimpleSuccess() {
+  @Test
+  public void handleRequest_SimpleSuccess() {
 
-        when(sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class)))
-            .thenReturn(
-                ListReplicationSetsResponse.builder()
-                    // we never return two arns, so this is a theoretical test. Still has to work.
-                    .replicationSetArns("arn1", "arn2")
-                    .build()
-            );
+    when(sdkClient.listReplicationSets(any(ListReplicationSetsRequest.class)))
+        .thenReturn(
+            ListReplicationSetsResponse.builder()
+                // we never return two arns, so this is a theoretical test. Still has to work.
+                .replicationSetArns("arn1", "arn2")
+                .build()
+        );
 
-        ResourceModel model = ResourceModel.builder().build();
+    ResourceModel model = ResourceModel.builder().build();
 
-        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-            .desiredResourceState(model)
-            .build();
+    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+        .desiredResourceState(model)
+        .build();
 
-        ProgressEvent<ResourceModel, CallbackContext> response =
-            handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+    ProgressEvent<ResourceModel, CallbackContext> response =
+        handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
-        assertThat(response.getCallbackContext()).isNull();
-        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-        assertThat(response.getResourceModel()).isNull();
-        assertThat(response.getResourceModels()).isNotNull().hasSize(2);
-        assertThat(response.getMessage()).isNull();
-        assertThat(response.getErrorCode()).isNull();
+    assertThat(response).isNotNull();
+    assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+    assertThat(response.getCallbackContext()).isNull();
+    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+    assertThat(response.getResourceModel()).isNull();
+    assertThat(response.getResourceModels()).isNotNull().hasSize(2);
+    assertThat(response.getMessage()).isNull();
+    assertThat(response.getErrorCode()).isNull();
 
-        assertThat(response.getResourceModels().get(0).getArn()).isEqualTo("arn1");
-        assertThat(response.getResourceModels().get(1).getArn()).isEqualTo("arn2");
+    assertThat(response.getResourceModels().get(0).getArn()).isEqualTo("arn1");
+    assertThat(response.getResourceModels().get(1).getArn()).isEqualTo("arn2");
 
-        verify(sdkClient).listReplicationSets(any(ListReplicationSetsRequest.class));
-    }
+    verify(sdkClient).listReplicationSets(any(ListReplicationSetsRequest.class));
+  }
 }

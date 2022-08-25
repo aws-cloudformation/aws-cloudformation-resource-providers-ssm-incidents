@@ -28,12 +28,12 @@ public class TranslatorFactory {
             SSM_PARAMETERS_CONVERTER);
 
     public final static Converter<software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem,
-        NotificationTargetItem> NOTIFICATION_TARGET_CONVERTER = new NotificationTargetConverter();
+                                     NotificationTargetItem> NOTIFICATION_TARGET_CONVERTER = new NotificationTargetConverter();
 
     public final static Converter<software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate, IncidentTemplate> INCIDENT_TEMPLATE_CONVERTER = new IncidentTemplateConverter(
         NOTIFICATION_TARGET_CONVERTER, TAGS_CONVERTER);
     public final static Converter<software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanRequest,
-        ResourceModel> CREATE_RESPONSEPLAN_CONVERTER =
+                                     ResourceModel> CREATE_RESPONSEPLAN_CONVERTER =
         new CreateResponsePlanConverter(
             INCIDENT_TEMPLATE_CONVERTER,
             ACTION_CONVERTER,

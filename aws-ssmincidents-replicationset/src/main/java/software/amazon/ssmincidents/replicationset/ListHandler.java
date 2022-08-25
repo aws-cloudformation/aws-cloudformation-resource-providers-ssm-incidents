@@ -14,32 +14,32 @@ import software.amazon.cloudformation.proxy.ResourceHandlerRequest;
 
 public class ListHandler extends BaseHandlerStd {
 
-    @Override
-    public ProgressEvent<ResourceModel, CallbackContext> handleRequest(
-        AmazonWebServicesClientProxy proxy,
-        ResourceHandlerRequest<ResourceModel> request,
-        CallbackContext callbackContext,
-        ProxyClient<SsmIncidentsClient> proxyClient,
-        Logger logger
-    ) {
+  @Override
+  public ProgressEvent<ResourceModel, CallbackContext> handleRequest(
+      AmazonWebServicesClientProxy proxy,
+      ResourceHandlerRequest<ResourceModel> request,
+      CallbackContext callbackContext,
+      ProxyClient<SsmIncidentsClient> proxyClient,
+      Logger logger
+  ) {
 
-        try {
-            ListReplicationSetsResponse awsResponse = proxyClient.injectCredentialsAndInvokeV2(
-                ListReplicationSetsRequest.builder().build(),
-                proxyClient.client()::listReplicationSets
-            );
+    try {
+      ListReplicationSetsResponse awsResponse = proxyClient.injectCredentialsAndInvokeV2(
+          ListReplicationSetsRequest.builder().build(),
+          proxyClient.client()::listReplicationSets
+      );
 
-            ImmutableList.Builder<ResourceModel> modelsBuilder = ImmutableList.builder();
-            if (awsResponse.replicationSetArns() != null) {
-                awsResponse.replicationSetArns().forEach(arn -> modelsBuilder.add(ResourceModel.builder().arn(arn).build()));
-            }
-            return ProgressEvent.<ResourceModel, CallbackContext>builder()
-                .resourceModels(modelsBuilder.build())
-                .nextToken(awsResponse.nextToken())
-                .status(OperationStatus.SUCCESS)
-                .build();
-        } catch (Exception exception) {
-            return ProgressEvent.defaultFailureHandler(exception, HandlerErrorCode.GeneralServiceException);
-        }
+      ImmutableList.Builder<ResourceModel> modelsBuilder = ImmutableList.builder();
+      if (awsResponse.replicationSetArns() != null) {
+        awsResponse.replicationSetArns().forEach(arn -> modelsBuilder.add(ResourceModel.builder().arn(arn).build()));
+      }
+      return ProgressEvent.<ResourceModel, CallbackContext>builder()
+          .resourceModels(modelsBuilder.build())
+          .nextToken(awsResponse.nextToken())
+          .status(OperationStatus.SUCCESS)
+          .build();
+    } catch (Exception exception) {
+      return ProgressEvent.defaultFailureHandler(exception, HandlerErrorCode.GeneralServiceException);
     }
+  }
 }
