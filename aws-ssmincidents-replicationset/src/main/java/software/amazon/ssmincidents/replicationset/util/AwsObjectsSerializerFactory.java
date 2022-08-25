@@ -23,63 +23,63 @@ import java.io.IOException;
 // This is currently used for logging purposes.
 public class AwsObjectsSerializerFactory extends SerializerFactory {
 
-  private static class AwsRequestSerializer extends JsonSerializer<Object> {
+    private static class AwsRequestSerializer extends JsonSerializer<Object> {
+
+        @Override
+        public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            serializers.defaultSerializeValue(((AwsRequest) value).toBuilder(), gen);
+        }
+    }
+
+    private static class AwsResponseSerializer extends JsonSerializer<Object> {
+
+        @Override
+        public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            serializers.defaultSerializeValue(((AwsResponse) value).toBuilder(), gen);
+        }
+    }
+
+
+    private final SerializerFactory delegateSerializerFactory;
+
+    public AwsObjectsSerializerFactory(SerializerFactory delegateSerializerFactory) {
+        this.delegateSerializerFactory = delegateSerializerFactory;
+    }
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-      serializers.defaultSerializeValue(((AwsRequest) value).toBuilder(), gen);
+    public SerializerFactory withAdditionalSerializers(Serializers additional) {
+        return delegateSerializerFactory.withAdditionalSerializers(additional);
     }
-  }
-
-  private static class AwsResponseSerializer extends JsonSerializer<Object> {
 
     @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-      serializers.defaultSerializeValue(((AwsResponse) value).toBuilder(), gen);
+    public SerializerFactory withAdditionalKeySerializers(Serializers additional) {
+        return delegateSerializerFactory.withAdditionalKeySerializers(additional);
     }
-  }
 
-
-  private final SerializerFactory delegateSerializerFactory;
-
-  public AwsObjectsSerializerFactory(SerializerFactory delegateSerializerFactory) {
-    this.delegateSerializerFactory = delegateSerializerFactory;
-  }
-
-  @Override
-  public SerializerFactory withAdditionalSerializers(Serializers additional) {
-    return delegateSerializerFactory.withAdditionalSerializers(additional);
-  }
-
-  @Override
-  public SerializerFactory withAdditionalKeySerializers(Serializers additional) {
-    return delegateSerializerFactory.withAdditionalKeySerializers(additional);
-  }
-
-  @Override
-  public SerializerFactory withSerializerModifier(BeanSerializerModifier modifier) {
-    return delegateSerializerFactory.withSerializerModifier(modifier);
-  }
-
-  @Override
-  public JsonSerializer<Object> createSerializer(SerializerProvider prov, JavaType baseType) throws JsonMappingException {
-    if (AwsRequest.class.isAssignableFrom(baseType.getRawClass())) {
-      return new AwsRequestSerializer();
+    @Override
+    public SerializerFactory withSerializerModifier(BeanSerializerModifier modifier) {
+        return delegateSerializerFactory.withSerializerModifier(modifier);
     }
-    if (AwsResponse.class.isAssignableFrom(baseType.getRawClass())) {
-      return new AwsResponseSerializer();
+
+    @Override
+    public JsonSerializer<Object> createSerializer(SerializerProvider prov, JavaType baseType) throws JsonMappingException {
+        if (AwsRequest.class.isAssignableFrom(baseType.getRawClass())) {
+            return new AwsRequestSerializer();
+        }
+        if (AwsResponse.class.isAssignableFrom(baseType.getRawClass())) {
+            return new AwsResponseSerializer();
+        }
+        return delegateSerializerFactory.createSerializer(prov, baseType);
     }
-    return delegateSerializerFactory.createSerializer(prov, baseType);
-  }
 
-  @Override
-  public TypeSerializer createTypeSerializer(SerializationConfig config, JavaType baseType) throws JsonMappingException {
-    return delegateSerializerFactory.createTypeSerializer(config, baseType);
-  }
+    @Override
+    public TypeSerializer createTypeSerializer(SerializationConfig config, JavaType baseType) throws JsonMappingException {
+        return delegateSerializerFactory.createTypeSerializer(config, baseType);
+    }
 
-  @Override
-  @Deprecated
-  public JsonSerializer<Object> createKeySerializer(SerializationConfig config, JavaType type, JsonSerializer<Object> defaultImpl) throws JsonMappingException {
-    return delegateSerializerFactory.createKeySerializer(config, type, defaultImpl);
-  }
+    @Override
+    @Deprecated
+    public JsonSerializer<Object> createKeySerializer(SerializationConfig config, JavaType type, JsonSerializer<Object> defaultImpl) throws JsonMappingException {
+        return delegateSerializerFactory.createKeySerializer(config, type, defaultImpl);
+    }
 }
