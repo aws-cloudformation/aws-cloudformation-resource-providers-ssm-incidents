@@ -31,23 +31,23 @@ public class CreateHandler extends BaseHandlerStd {
 
         return ProgressEvent.progress(request.getDesiredResourceState(), callbackContext)
             .then(progress ->
-                      proxy.initiate("AWS-SSMIncidents-ResponsePlan::Create", proxyClient, progress.getResourceModel(),
-                              progress.getCallbackContext())
-                          .translateToServiceRequest(Translator::translateToCreateRequest)
-                          .makeServiceCall((awsRequest, client) -> {
-                              CreateResponsePlanResponse awsResponse = null;
-                              try {
-                                  awsResponse = client
-                                      .injectCredentialsAndInvokeV2(awsRequest, proxyClient.client()::createResponsePlan);
-                              } catch (final Exception e) {
-                                  e.printStackTrace();
-                                  throw Translator.handleException(e);
-                              }
+                proxy.initiate("AWS-SSMIncidents-ResponsePlan::Create", proxyClient, progress.getResourceModel(),
+                        progress.getCallbackContext())
+                    .translateToServiceRequest(Translator::translateToCreateRequest)
+                    .makeServiceCall((awsRequest, client) -> {
+                        CreateResponsePlanResponse awsResponse = null;
+                        try {
+                            awsResponse = client
+                                .injectCredentialsAndInvokeV2(awsRequest, proxyClient.client()::createResponsePlan);
+                        } catch (final Exception e) {
+                            e.printStackTrace();
+                            throw Translator.handleException(e);
+                        }
 
-                              logger.log(String.format("%s successfully created.", ResourceModel.TYPE_NAME));
-                              return awsResponse;
-                          })
-                          .done((createResponsePlanRequest, createResponsePlanResponse, client, model, context) -> ProgressEvent.defaultInProgressHandler(context, 0, updateModelWithArn(model, createResponsePlanResponse.arn())))
+                        logger.log(String.format("%s successfully created.", ResourceModel.TYPE_NAME));
+                        return awsResponse;
+                    })
+                    .done((createResponsePlanRequest, createResponsePlanResponse, client, model, context) -> ProgressEvent.defaultInProgressHandler(context, 0, updateModelWithArn(model, createResponsePlanResponse.arn())))
             )
             .then(progress -> new ReadHandler().handleRequest(proxy, request, callbackContext, proxyClient, logger));
     }

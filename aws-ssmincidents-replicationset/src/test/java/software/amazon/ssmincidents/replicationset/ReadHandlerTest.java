@@ -40,266 +40,266 @@ import static org.mockito.Mockito.when;
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
 public class ReadHandlerTest extends AbstractTestBase {
 
-  private AmazonWebServicesClientProxy proxy;
+    private AmazonWebServicesClientProxy proxy;
 
-  private ProxyClient<SsmIncidentsClient> proxyClient;
+    private ProxyClient<SsmIncidentsClient> proxyClient;
 
-  @Mock
-  private SsmIncidentsClient sdkClient;
+    @Mock
+    private SsmIncidentsClient sdkClient;
 
-  private ReadHandler handler;
+    private ReadHandler handler;
 
-  @BeforeEach
-  public void setup() {
-    proxy = new AmazonWebServicesClientProxy(logger, MOCK_CREDENTIALS, () -> Duration.ofSeconds(600).toMillis());
-    proxyClient = MOCK_PROXY(proxy, sdkClient);
-    handler = new ReadHandler();
-  }
+    @BeforeEach
+    public void setup() {
+        proxy = new AmazonWebServicesClientProxy(logger, MOCK_CREDENTIALS, () -> Duration.ofSeconds(600).toMillis());
+        proxyClient = MOCK_PROXY(proxy, sdkClient);
+        handler = new ReadHandler();
+    }
 
-  @AfterEach
-  public void cleanup() {
-    verify(sdkClient, atMost(5)).serviceName();
-    verifyNoMoreInteractions(sdkClient);
-  }
+    @AfterEach
+    public void cleanup() {
+        verify(sdkClient, atMost(5)).serviceName();
+        verifyNoMoreInteractions(sdkClient);
+    }
 
-  @Test
-  public void handleRequest_SimpleSuccess() {
+    @Test
+    public void handleRequest_SimpleSuccess() {
 
-    GetReplicationSetResponse getResponse = GetReplicationSetResponse.builder()
-        .replicationSet(
-            ReplicationSet.builder()
-                .status(ReplicationSetStatus.ACTIVE)
+        GetReplicationSetResponse getResponse = GetReplicationSetResponse.builder()
+            .replicationSet(
+                ReplicationSet.builder()
+                    .status(ReplicationSetStatus.ACTIVE)
+                    .deletionProtected(true)
+                    .regionMap(
+                        ImmutableMap.of(
+                            "us-east-1", RegionInfo.builder()
+                                .status(RegionStatus.ACTIVE)
+                                .sseKmsKeyId("kms-key-id-us-east-1")
+                                .build(),
+                            "us-west-2", RegionInfo.builder()
+                                .status(RegionStatus.ACTIVE)
+                                .sseKmsKeyId("kms-key-id-us-west-2")
+                                .build()
+                        )
+                    )
+                    .build()
+            )
+            .build();
+
+        when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
+            .thenReturn(getResponse);
+
+        ResourceModel model = ResourceModel.builder()
+            .arn("arn")
+            .build();
+
+        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+            .desiredResourceState(model)
+            .build();
+
+        ProgressEvent<ResourceModel, CallbackContext> response =
+            handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(
+            ResourceModel.builder()
+                .arn("arn")
                 .deletionProtected(true)
-                .regionMap(
-                    ImmutableMap.of(
-                        "us-east-1", RegionInfo.builder()
-                            .status(RegionStatus.ACTIVE)
-                            .sseKmsKeyId("kms-key-id-us-east-1")
-                            .build(),
-                        "us-west-2", RegionInfo.builder()
-                            .status(RegionStatus.ACTIVE)
-                            .sseKmsKeyId("kms-key-id-us-west-2")
-                            .build()
+                .regions(
+                    ImmutableSet.of(
+                        new ReplicationRegion(
+                            "us-east-1",
+                            RegionConfiguration.builder().sseKmsKeyId("kms-key-id-us-east-1"
+                            ).build()),
+                        new ReplicationRegion(
+                            "us-west-2",
+                            RegionConfiguration.builder().sseKmsKeyId("kms-key-id-us-west-2"
+                            ).build())
                     )
                 )
                 .build()
-        )
-        .build();
+        );
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
 
-    when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
-        .thenReturn(getResponse);
+        ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
+        verify(sdkClient).getReplicationSet(getRequest.capture());
+        assertThat(getRequest.getValue().arn()).isEqualTo("arn");
+    }
 
-    ResourceModel model = ResourceModel.builder()
-        .arn("arn")
-        .build();
+    @Test
+    public void handleRequest_NotFound() {
 
-    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-        .desiredResourceState(model)
-        .build();
+        when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
+            .thenThrow(ResourceNotFoundException.builder().message("test not found exception").build());
 
-    ProgressEvent<ResourceModel, CallbackContext> response =
-        handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
-
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
-    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-    assertThat(response.getResourceModel()).isEqualTo(
-        ResourceModel.builder()
+        ResourceModel model = ResourceModel.builder()
             .arn("arn")
-            .deletionProtected(true)
-            .regions(
-                ImmutableSet.of(
-                    new ReplicationRegion(
-                        "us-east-1",
-                        RegionConfiguration.builder().sseKmsKeyId("kms-key-id-us-east-1"
-                        ).build()),
-                    new ReplicationRegion(
-                        "us-west-2",
-                        RegionConfiguration.builder().sseKmsKeyId("kms-key-id-us-west-2"
-                        ).build())
-                )
+            .build();
+
+        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+            .desiredResourceState(model)
+            .build();
+
+        ProgressEvent<ResourceModel, CallbackContext> response =
+            handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isEqualTo("test not found exception");
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.NotFound);
+
+        ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
+        verify(sdkClient).getReplicationSet(getRequest.capture());
+        assertThat(getRequest.getValue().arn()).isEqualTo("arn");
+    }
+
+    @Test
+    public void handleRequest_ValidationException() {
+
+        when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
+            .thenThrow(ValidationException.builder().message("test validation exception").build());
+
+        ResourceModel model = ResourceModel.builder()
+            .arn("arn")
+            .build();
+
+        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+            .desiredResourceState(model)
+            .build();
+
+        ProgressEvent<ResourceModel, CallbackContext> response =
+            handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isEqualTo("test validation exception");
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
+
+        ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
+        verify(sdkClient).getReplicationSet(getRequest.capture());
+        assertThat(getRequest.getValue().arn()).isEqualTo("arn");
+    }
+
+    @Test
+    public void handleRequest_OtherException() {
+
+        when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
+            .thenThrow(new RuntimeException("test exception"));
+
+        ResourceModel model = ResourceModel.builder()
+            .arn("arn")
+            .build();
+
+        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+            .desiredResourceState(model)
+            .build();
+
+        ProgressEvent<ResourceModel, CallbackContext> response =
+            handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isEqualTo("test exception");
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.GeneralServiceException);
+
+        ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
+        verify(sdkClient).getReplicationSet(getRequest.capture());
+        assertThat(getRequest.getValue().arn()).isEqualTo("arn");
+    }
+
+    @Test
+    public void handleRequest_nullArn() {
+
+        ResourceModel model = ResourceModel.builder()
+            .arn(null)
+            .build();
+
+        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+            .desiredResourceState(model)
+            .build();
+
+        ProgressEvent<ResourceModel, CallbackContext> response =
+            handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isNull();
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.NotFound);
+    }
+
+    @Test
+    public void testDefaultKeyReturned() {
+        GetReplicationSetResponse getResponse = GetReplicationSetResponse.builder()
+            .replicationSet(
+                ReplicationSet.builder()
+                    .status(ReplicationSetStatus.ACTIVE)
+                    .deletionProtected(true)
+                    .regionMap(
+                        ImmutableMap.of(
+                            "us-east-1", RegionInfo.builder()
+                                .status(RegionStatus.ACTIVE)
+                                .sseKmsKeyId(ReadHandler.DEFAULT_KMS_KEY_ID)
+                                .build(),
+                            "us-west-2", RegionInfo.builder()
+                                .status(RegionStatus.ACTIVE)
+                                .sseKmsKeyId(ReadHandler.DEFAULT_KMS_KEY_ID)
+                                .build()
+                        )
+                    )
+                    .build()
             )
-            .build()
-    );
-    assertThat(response.getResourceModels()).isNull();
-    assertThat(response.getMessage()).isNull();
-    assertThat(response.getErrorCode()).isNull();
+            .build();
 
-    ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
-    verify(sdkClient).getReplicationSet(getRequest.capture());
-    assertThat(getRequest.getValue().arn()).isEqualTo("arn");
-  }
+        when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
+            .thenReturn(getResponse);
 
-  @Test
-  public void handleRequest_NotFound() {
+        ResourceModel model = ResourceModel.builder()
+            .arn("arn")
+            .build();
 
-    when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
-        .thenThrow(ResourceNotFoundException.builder().message("test not found exception").build());
+        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+            .desiredResourceState(model)
+            .build();
 
-    ResourceModel model = ResourceModel.builder()
-        .arn("arn")
-        .build();
+        ProgressEvent<ResourceModel, CallbackContext> response =
+            handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
-    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-        .desiredResourceState(model)
-        .build();
-
-    ProgressEvent<ResourceModel, CallbackContext> response =
-        handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
-
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
-    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-    assertThat(response.getResourceModel()).isNull();
-    assertThat(response.getResourceModels()).isNull();
-    assertThat(response.getMessage()).isEqualTo("test not found exception");
-    assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.NotFound);
-
-    ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
-    verify(sdkClient).getReplicationSet(getRequest.capture());
-    assertThat(getRequest.getValue().arn()).isEqualTo("arn");
-  }
-
-  @Test
-  public void handleRequest_ValidationException() {
-
-    when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
-        .thenThrow(ValidationException.builder().message("test validation exception").build());
-
-    ResourceModel model = ResourceModel.builder()
-        .arn("arn")
-        .build();
-
-    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-        .desiredResourceState(model)
-        .build();
-
-    ProgressEvent<ResourceModel, CallbackContext> response =
-        handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
-
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
-    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-    assertThat(response.getResourceModel()).isNull();
-    assertThat(response.getResourceModels()).isNull();
-    assertThat(response.getMessage()).isEqualTo("test validation exception");
-    assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.InvalidRequest);
-
-    ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
-    verify(sdkClient).getReplicationSet(getRequest.capture());
-    assertThat(getRequest.getValue().arn()).isEqualTo("arn");
-  }
-
-  @Test
-  public void handleRequest_OtherException() {
-
-    when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
-        .thenThrow(new RuntimeException("test exception"));
-
-    ResourceModel model = ResourceModel.builder()
-        .arn("arn")
-        .build();
-
-    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-        .desiredResourceState(model)
-        .build();
-
-    ProgressEvent<ResourceModel, CallbackContext> response =
-        handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
-
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
-    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-    assertThat(response.getResourceModel()).isNull();
-    assertThat(response.getResourceModels()).isNull();
-    assertThat(response.getMessage()).isEqualTo("test exception");
-    assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.GeneralServiceException);
-
-    ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
-    verify(sdkClient).getReplicationSet(getRequest.capture());
-    assertThat(getRequest.getValue().arn()).isEqualTo("arn");
-  }
-
-  @Test
-  public void handleRequest_nullArn() {
-
-    ResourceModel model = ResourceModel.builder()
-        .arn(null)
-        .build();
-
-    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-        .desiredResourceState(model)
-        .build();
-
-    ProgressEvent<ResourceModel, CallbackContext> response =
-        handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
-
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
-    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-    assertThat(response.getResourceModel()).isNull();
-    assertThat(response.getResourceModels()).isNull();
-    assertThat(response.getErrorCode()).isEqualTo(HandlerErrorCode.NotFound);
-  }
-
-  @Test
-  public void testDefaultKeyReturned() {
-    GetReplicationSetResponse getResponse = GetReplicationSetResponse.builder()
-        .replicationSet(
-            ReplicationSet.builder()
-                .status(ReplicationSetStatus.ACTIVE)
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(
+            ResourceModel.builder()
+                .arn("arn")
                 .deletionProtected(true)
-                .regionMap(
-                    ImmutableMap.of(
-                        "us-east-1", RegionInfo.builder()
-                            .status(RegionStatus.ACTIVE)
-                            .sseKmsKeyId(ReadHandler.DEFAULT_KMS_KEY_ID)
-                            .build(),
-                        "us-west-2", RegionInfo.builder()
-                            .status(RegionStatus.ACTIVE)
-                            .sseKmsKeyId(ReadHandler.DEFAULT_KMS_KEY_ID)
-                            .build()
+                .regions(
+                    ImmutableSet.of(
+                        new ReplicationRegion("us-east-1", null),
+                        new ReplicationRegion("us-west-2", null)
                     )
                 )
                 .build()
-        )
-        .build();
+        );
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
 
-    when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
-        .thenReturn(getResponse);
-
-    ResourceModel model = ResourceModel.builder()
-        .arn("arn")
-        .build();
-
-    ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
-        .desiredResourceState(model)
-        .build();
-
-    ProgressEvent<ResourceModel, CallbackContext> response =
-        handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
-
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
-    assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
-    assertThat(response.getResourceModel()).isEqualTo(
-        ResourceModel.builder()
-            .arn("arn")
-            .deletionProtected(true)
-            .regions(
-                ImmutableSet.of(
-                    new ReplicationRegion("us-east-1", null),
-                    new ReplicationRegion("us-west-2", null)
-                )
-            )
-            .build()
-    );
-    assertThat(response.getResourceModels()).isNull();
-    assertThat(response.getMessage()).isNull();
-    assertThat(response.getErrorCode()).isNull();
-
-    ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
-    verify(sdkClient).getReplicationSet(getRequest.capture());
-    assertThat(getRequest.getValue().arn()).isEqualTo("arn");
-  }
+        ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
+        verify(sdkClient).getReplicationSet(getRequest.capture());
+        assertThat(getRequest.getValue().arn()).isEqualTo("arn");
+    }
 }
