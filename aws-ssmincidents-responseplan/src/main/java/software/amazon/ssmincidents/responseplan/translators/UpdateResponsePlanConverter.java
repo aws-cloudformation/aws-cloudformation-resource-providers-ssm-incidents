@@ -19,7 +19,7 @@ public class UpdateResponsePlanConverter extends
     Converter<software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate, IncidentTemplate> incidentTemplateConverter;
     Converter<software.amazon.awssdk.services.ssmincidents.model.Action, Action> actionConverter;
     Converter<software.amazon.awssdk.services.ssmincidents.model.ChatChannel,
-                 software.amazon.ssmincidents.responseplan.ChatChannel> chatChannelConverter;
+        software.amazon.ssmincidents.responseplan.ChatChannel> chatChannelConverter;
 
     public UpdateResponsePlanConverter(
         Converter<software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate, IncidentTemplate> incidentTemplateConverter,
