@@ -67,4 +67,3 @@ public class TranslatorFactory {
             CHAT_CHANNEL_CONVERTER
         );
 }
-
