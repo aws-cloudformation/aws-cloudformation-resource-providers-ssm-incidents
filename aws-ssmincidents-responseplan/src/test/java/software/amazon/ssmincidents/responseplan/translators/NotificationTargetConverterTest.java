@@ -1,16 +1,17 @@
 package software.amazon.ssmincidents.responseplan.translators;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.base.Converter;
+
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import software.amazon.ssmincidents.responseplan.NotificationTargetItem;
 import software.amazon.ssmincidents.responseplan.TestData;
-
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class NotificationTargetConverterTest {
 

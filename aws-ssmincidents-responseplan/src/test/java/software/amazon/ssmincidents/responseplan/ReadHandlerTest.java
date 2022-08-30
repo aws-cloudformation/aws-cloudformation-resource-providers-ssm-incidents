@@ -33,16 +33,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ReadHandlerTest extends AbstractTestBase {
 
-    public static final ResourceModel RETURNED_MODEL_WITH_TAGS = ResourceModel.builder()
-        .arn(TestData.ARN)
-        .name(TestData.NAME)
-        .incidentTemplate(
-            IncidentTemplate.builder().title(TestData.TITLE).impact(TestData.IMPACT).build()
-        )
-        .engagements(new HashSet<>())
-        .actions(new ArrayList<>())
-        .tags(TestData.TAGS_1)
-        .build();
     @Mock
     SsmIncidentsClient sdkClient;
     @Mock
@@ -137,7 +127,7 @@ public class ReadHandlerTest extends AbstractTestBase {
         final ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
         verify(sdkClient, times(1)).listTagsForResource(any(ListTagsForResourceRequest.class));
-        verify(sdkClient, times(1)).getResponsePlan(argThat((GetResponsePlanRequest x) -> x.arn().equals(TestData.ARN)));
+        verify(sdkClient, times(1)).getResponsePlan((GetResponsePlanRequest) argThat((GetResponsePlanRequest x) -> x.arn().equals(TestData.ARN)));
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
         assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
@@ -146,4 +136,15 @@ public class ReadHandlerTest extends AbstractTestBase {
         assertThat(response.getMessage()).isNull();
         assertThat(response.getErrorCode()).isNull();
     }
+
+    public static final ResourceModel RETURNED_MODEL_WITH_TAGS = ResourceModel.builder()
+        .arn(TestData.ARN)
+        .name(TestData.NAME)
+        .incidentTemplate(
+            IncidentTemplate.builder().title(TestData.TITLE).impact(TestData.IMPACT).build()
+        )
+        .engagements(new HashSet<>())
+        .actions(new ArrayList<>())
+        .tags(TestData.TAGS_1)
+        .build();
 }

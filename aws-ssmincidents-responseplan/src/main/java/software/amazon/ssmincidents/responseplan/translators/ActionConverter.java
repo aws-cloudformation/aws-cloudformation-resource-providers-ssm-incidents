@@ -2,6 +2,7 @@ package software.amazon.ssmincidents.responseplan.translators;
 
 import com.google.common.base.Converter;
 import software.amazon.ssmincidents.responseplan.Action;
+import software.amazon.ssmincidents.responseplan.DynamicSsmParameter;
 import software.amazon.ssmincidents.responseplan.SsmAutomation;
 import software.amazon.ssmincidents.responseplan.SsmParameter;
 
@@ -13,10 +14,20 @@ public class ActionConverter extends
     Converter<software.amazon.awssdk.services.ssmincidents.model.Action, Action> {
 
     Converter<Map<String, List<String>>, Set<SsmParameter>> ssmParameterConverter;
+    Converter<
+        Map<String, software.amazon.awssdk.services.ssmincidents.model.DynamicSsmParameterValue>,
+        Set<DynamicSsmParameter>
+        > dynamicSsmParameterConverter;
 
     public ActionConverter(
-        Converter<Map<String, List<String>>, Set<SsmParameter>> ssmParameterConverter) {
+        Converter<Map<String, List<String>>, Set<SsmParameter>> ssmParameterConverter,
+        Converter<
+            Map<String, software.amazon.awssdk.services.ssmincidents.model.DynamicSsmParameterValue>,
+            Set<DynamicSsmParameter>
+            > dynamicSsmParameterConverter
+    ) {
         this.ssmParameterConverter = ssmParameterConverter;
+        this.dynamicSsmParameterConverter = dynamicSsmParameterConverter;
     }
 
     @Override
@@ -32,6 +43,7 @@ public class ActionConverter extends
                 .roleArn(ssmAutomation.roleArn())
                 .targetAccount(ssmAutomation.targetAccountAsString())
                 .parameters(ssmParameterConverter.convert(ssmAutomation.parameters()))
+                .dynamicParameters(dynamicSsmParameterConverter.convert(ssmAutomation.dynamicParameters()))
                 .build()
         ).build();
     }
@@ -49,6 +61,7 @@ public class ActionConverter extends
                 .documentVersion(ssmAutomation.getDocumentVersion())
                 .targetAccount(ssmAutomation.getTargetAccount())
                 .parameters(ssmParameterConverter.reverse().convert(ssmAutomation.getParameters()))
+                .dynamicParameters(dynamicSsmParameterConverter.reverse().convert(ssmAutomation.getDynamicParameters()))
                 .build()
         ).build();
     }

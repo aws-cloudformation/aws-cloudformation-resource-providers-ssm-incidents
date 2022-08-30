@@ -1,7 +1,14 @@
 package software.amazon.ssmincidents.responseplan.translators;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.base.Converter;
 import com.google.common.collect.ImmutableList;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.stream.Stream;
+
 import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -11,12 +18,6 @@ import software.amazon.awssdk.services.ssmincidents.model.GetResponsePlanRespons
 import software.amazon.ssmincidents.responseplan.IncidentTemplate;
 import software.amazon.ssmincidents.responseplan.ResourceModel;
 import software.amazon.ssmincidents.responseplan.TestData;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class GetResponsePlanConverterTest {
 

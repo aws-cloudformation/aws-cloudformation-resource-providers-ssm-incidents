@@ -3,9 +3,9 @@ package software.amazon.ssmincidents.responseplan.translators;
 import com.google.common.base.Converter;
 import com.google.common.collect.Lists;
 import software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem;
+import software.amazon.ssmincidents.responseplan.Tag;
 import software.amazon.ssmincidents.responseplan.IncidentTemplate;
 import software.amazon.ssmincidents.responseplan.IncidentTemplate.IncidentTemplateBuilder;
-import software.amazon.ssmincidents.responseplan.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +64,7 @@ public class IncidentTemplateConverter extends
                     incidentTemplate.getNotificationTargets())
             );
         }
+
         return software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate.builder()
             .title(incidentTemplate.getTitle())
             .summary(nullToEmptyString(incidentTemplate.getSummary()))

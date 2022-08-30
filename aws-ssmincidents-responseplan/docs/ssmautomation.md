@@ -14,7 +14,8 @@ To declare this entity in your AWS CloudFormation template, use the following sy
     "<a href="#documentname" title="DocumentName">DocumentName</a>" : <i>String</i>,
     "<a href="#documentversion" title="DocumentVersion">DocumentVersion</a>" : <i>String</i>,
     "<a href="#targetaccount" title="TargetAccount">TargetAccount</a>" : <i>String</i>,
-    "<a href="#parameters" title="Parameters">Parameters</a>" : <i>[ <a href="ssmparameter.md">SsmParameter</a>, ... ]</i>
+    "<a href="#parameters" title="Parameters">Parameters</a>" : <i>[ <a href="ssmparameter.md">SsmParameter</a>, ... ]</i>,
+    "<a href="#dynamicparameters" title="DynamicParameters">DynamicParameters</a>" : <i>[ <a href="dynamicssmparameter.md">DynamicSsmParameter</a>, ... ]</i>
 }
 </pre>
 
@@ -27,6 +28,8 @@ To declare this entity in your AWS CloudFormation template, use the following sy
 <a href="#targetaccount" title="TargetAccount">TargetAccount</a>: <i>String</i>
 <a href="#parameters" title="Parameters">Parameters</a>: <i>
       - <a href="ssmparameter.md">SsmParameter</a></i>
+<a href="#dynamicparameters" title="DynamicParameters">DynamicParameters</a>: <i>
+      - <a href="dynamicssmparameter.md">DynamicSsmParameter</a></i>
 </pre>
 
 ## Properties
@@ -90,3 +93,14 @@ _Required_: No
 _Type_: List of <a href="ssmparameter.md">SsmParameter</a>
 
 _Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
+
+#### DynamicParameters
+
+The parameters with dynamic values to set when starting the SSM automation document.
+
+_Required_: No
+
+_Type_: List of <a href="dynamicssmparameter.md">DynamicSsmParameter</a>
+
+_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
+
