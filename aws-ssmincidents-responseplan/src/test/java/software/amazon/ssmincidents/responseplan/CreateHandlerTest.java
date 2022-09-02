@@ -14,7 +14,6 @@ import software.amazon.awssdk.services.ssmincidents.model.CreateResponsePlanResp
 import software.amazon.awssdk.services.ssmincidents.model.GetResponsePlanRequest;
 import software.amazon.awssdk.services.ssmincidents.model.ListTagsForResourceRequest;
 import software.amazon.awssdk.services.ssmincidents.model.ListTagsForResourceResponse;
-import software.amazon.awssdk.services.ssmincidents.model.UpdateResponsePlanRequest;
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy;
 import software.amazon.cloudformation.proxy.OperationStatus;
 import software.amazon.cloudformation.proxy.ProgressEvent;

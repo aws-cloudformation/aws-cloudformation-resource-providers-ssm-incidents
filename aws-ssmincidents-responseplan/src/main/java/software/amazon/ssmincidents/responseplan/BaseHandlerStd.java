@@ -1,7 +1,6 @@
 package software.amazon.ssmincidents.responseplan;
 
 import software.amazon.awssdk.services.ssmincidents.SsmIncidentsClient;
-import software.amazon.awssdk.services.ssmincidents.SsmIncidentsClient;
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy;
 import software.amazon.cloudformation.proxy.Logger;
 import software.amazon.cloudformation.proxy.ProgressEvent;

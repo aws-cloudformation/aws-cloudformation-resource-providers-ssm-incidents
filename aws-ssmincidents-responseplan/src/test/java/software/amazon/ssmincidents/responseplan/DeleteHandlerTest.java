@@ -10,7 +10,6 @@ import software.amazon.awssdk.services.ssmincidents.SsmIncidentsClient;
 import software.amazon.awssdk.services.ssmincidents.model.DeleteResponsePlanRequest;
 import software.amazon.awssdk.services.ssmincidents.model.DeleteResponsePlanResponse;
 import software.amazon.awssdk.services.ssmincidents.model.GetResponsePlanRequest;
-import software.amazon.awssdk.services.ssmincidents.model.UpdateResponsePlanRequest;
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy;
 import software.amazon.cloudformation.proxy.OperationStatus;
 import software.amazon.cloudformation.proxy.ProgressEvent;
