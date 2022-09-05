@@ -1,7 +1,13 @@
 package software.amazon.ssmincidents.responseplan.translators;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.base.Converter;
+
+import java.util.HashSet;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -10,11 +16,6 @@ import software.amazon.awssdk.services.ssmincidents.model.SsmTargetAccount;
 import software.amazon.ssmincidents.responseplan.Action;
 import software.amazon.ssmincidents.responseplan.SsmAutomation;
 import software.amazon.ssmincidents.responseplan.TestData;
-
-import java.util.HashSet;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class ActionConverterTest {
 
@@ -37,6 +38,7 @@ class ActionConverterTest {
                         .documentVersion(TestData.SSM_VERSION)
                         .roleArn(TestData.SSM_ROLE)
                         .parameters(new HashSet<>())
+                        .dynamicParameters(new HashSet<>())
                         .build())
                     .build()
             ),
@@ -58,6 +60,7 @@ class ActionConverterTest {
                             .documentName(TestData.SSM_DOC)
                             .roleArn(TestData.SSM_ROLE)
                             .parameters(new HashSet<>())
+                            .dynamicParameters(new HashSet<>())
                             .build())
                     .build()
             ),

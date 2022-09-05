@@ -40,7 +40,6 @@ public class UpdateResponsePlanConverter extends
     protected UpdateResponsePlanRequest doBackward(ResourceModel resourceModel) {
         software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate incidentTemplate = incidentTemplateConverter.reverse().convert(resourceModel.getIncidentTemplate());
 
-
         UpdateResponsePlanRequest updateResponsePlanRequest = UpdateResponsePlanRequest.builder()
             .arn(resourceModel.getArn())
             .displayName(resourceModel.getDisplayName())
@@ -66,6 +65,7 @@ public class UpdateResponsePlanConverter extends
                 Optional.ofNullable(incidentTemplate.notificationTargets()).orElse(new ArrayList<>())
             )
             .incidentTemplateTags(incidentTemplate.incidentTags())
+
             .build();
         return updateResponsePlanRequest;
     }

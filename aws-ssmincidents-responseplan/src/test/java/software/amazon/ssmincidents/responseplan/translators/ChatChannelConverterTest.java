@@ -1,6 +1,12 @@
 package software.amazon.ssmincidents.responseplan.translators;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.base.Converter;
+
+import java.util.ArrayList;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,11 +14,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import software.amazon.ssmincidents.responseplan.ChatChannel;
 import software.amazon.ssmincidents.responseplan.TestData;
-
-import java.util.ArrayList;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class ChatChannelConverterTest {
 

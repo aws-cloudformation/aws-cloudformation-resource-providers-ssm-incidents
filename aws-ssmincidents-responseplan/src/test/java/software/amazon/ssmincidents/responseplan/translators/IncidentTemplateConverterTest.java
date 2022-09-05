@@ -1,6 +1,12 @@
 package software.amazon.ssmincidents.responseplan.translators;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.base.Converter;
+
+import java.util.ArrayList;
+import java.util.stream.Stream;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,11 +15,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import software.amazon.ssmincidents.responseplan.IncidentTemplate;
 import software.amazon.ssmincidents.responseplan.TestData;
-
-import java.util.ArrayList;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class IncidentTemplateConverterTest {
 

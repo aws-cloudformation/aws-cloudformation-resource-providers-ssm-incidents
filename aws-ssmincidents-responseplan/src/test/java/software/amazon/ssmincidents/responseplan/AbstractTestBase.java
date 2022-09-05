@@ -1,5 +1,8 @@
 package software.amazon.ssmincidents.responseplan;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+
 import software.amazon.awssdk.awscore.AwsRequest;
 import software.amazon.awssdk.awscore.AwsResponse;
 import software.amazon.awssdk.core.ResponseBytes;
@@ -10,9 +13,6 @@ import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy;
 import software.amazon.cloudformation.proxy.Credentials;
 import software.amazon.cloudformation.proxy.LoggerProxy;
 import software.amazon.cloudformation.proxy.ProxyClient;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 public class AbstractTestBase {
 

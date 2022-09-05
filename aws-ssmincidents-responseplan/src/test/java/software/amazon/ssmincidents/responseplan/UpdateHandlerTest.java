@@ -40,46 +40,14 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class UpdateHandlerTest extends AbstractTestBase {
 
-    public static final ResourceModel DESIRED_MODEL_BASE = ResourceModel.builder()
-        .arn(TestData.ARN)
-        .name(TestData.NAME)
-        .incidentTemplate(
-            IncidentTemplate.builder().title(TestData.TITLE).impact(TestData.IMPACT).build()
-        )
-        .build();
-    public static final ResourceModel RETURNED_MODEL_BASE = ResourceModel.builder()
-        .arn(TestData.ARN)
-        .name(TestData.NAME)
-        .incidentTemplate(
-            IncidentTemplate.builder()
-                .title(TestData.TITLE).impact(TestData.IMPACT)
-                .build()
-        )
-        .engagements(new HashSet<>())
-        .actions(new ArrayList<>())
-        .tags(new HashSet<>())
-        .build();
-    public static final UpdateResponsePlanResponse UPDATE_RESPONSE_PLAN_RESPONSE = UpdateResponsePlanResponse
-        .builder()
-        .build();
-    public static final ResourceModel PREVIOUS_MODEL_BASE = ResourceModel.builder()
-        .arn(TestData.ARN)
-        .name(TestData.NAME)
-        .displayName(TestData.DISPLAY_NAME)
-        .incidentTemplate(
-            IncidentTemplate.builder()
-                .title(TestData.TITLE)
-                .impact(TestData.IMPACT)
-                .build()
-        )
-        .tags(ImmutableSet.of(new Tag(TestData.TAG_KEY_3, TestData.TAG_VALUE_3)))
-        .build();
-    @Mock
-    SsmIncidentsClient sdkClient;
     @Mock
     private AmazonWebServicesClientProxy proxy;
+
     @Mock
     private ProxyClient<SsmIncidentsClient> proxyClient;
+
+    @Mock
+    SsmIncidentsClient sdkClient;
 
     @BeforeEach
     public void setup() {
@@ -202,5 +170,43 @@ public class UpdateHandlerTest extends AbstractTestBase {
         assertThat(updateResponsePlanRequest.chatChannel().empty()).isEqualTo(EmptyChatChannel.builder().build());
         return true;
     }
+
+    public static final ResourceModel DESIRED_MODEL_BASE = ResourceModel.builder()
+        .arn(TestData.ARN)
+        .name(TestData.NAME)
+        .incidentTemplate(
+            IncidentTemplate.builder().title(TestData.TITLE).impact(TestData.IMPACT).build()
+        )
+        .build();
+
+    public static final ResourceModel RETURNED_MODEL_BASE = ResourceModel.builder()
+        .arn(TestData.ARN)
+        .name(TestData.NAME)
+        .incidentTemplate(
+            IncidentTemplate.builder()
+                .title(TestData.TITLE).impact(TestData.IMPACT)
+                .build()
+        )
+        .engagements(new HashSet<>())
+        .actions(new ArrayList<>())
+        .tags(new HashSet<>())
+        .build();
+
+    public static final UpdateResponsePlanResponse UPDATE_RESPONSE_PLAN_RESPONSE = UpdateResponsePlanResponse
+        .builder()
+        .build();
+
+    public static final ResourceModel PREVIOUS_MODEL_BASE = ResourceModel.builder()
+        .arn(TestData.ARN)
+        .name(TestData.NAME)
+        .displayName(TestData.DISPLAY_NAME)
+        .incidentTemplate(
+            IncidentTemplate.builder()
+                .title(TestData.TITLE)
+                .impact(TestData.IMPACT)
+                .build()
+        )
+        .tags(ImmutableSet.of(new Tag(TestData.TAG_KEY_3, TestData.TAG_VALUE_3)))
+        .build();
 
 }

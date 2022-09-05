@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import software.amazon.awssdk.services.ssmincidents.model.GetResponsePlanResponse;
 import software.amazon.awssdk.services.ssmincidents.model.SsmTargetAccount;
+import software.amazon.awssdk.services.ssmincidents.model.VariableType;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -40,20 +41,40 @@ public class TestData {
     public static final String SSM_PARAMETER_KEY_2 = "key2";
     public static final List<String> SSM_PARAMETER_VALUES_2 = ImmutableList.of("foo", "bar", "it");
 
+    public static final String DYNAMIC_SSM_PARAMETER_KEY = "key3";
+    public static final DynamicSsmParameterValue DYNAMIC_SSM_PARAMETER_VALUE =
+        DynamicSsmParameterValue.builder().variable(VariableType.INCIDENT_RECORD_ARN.name()).build();
+
+    public static final software.amazon.awssdk.services.ssmincidents.model.DynamicSsmParameterValue API_DYNAMIC_SSM_PARAMETER_VALUE =
+        software.amazon.awssdk.services.ssmincidents.model.DynamicSsmParameterValue
+            .builder()
+            .variable(VariableType.INCIDENT_RECORD_ARN)
+            .build();
+
+    public static final String DYNAMIC_SSM_PARAMETER_KEY_2 = "key4";
+    public static final DynamicSsmParameterValue DYNAMIC_SSM_PARAMETER_VALUE_2 =
+        DynamicSsmParameterValue.builder().variable(VariableType.INVOLVED_RESOURCES.name()).build();
+
+    public static final software.amazon.awssdk.services.ssmincidents.model.DynamicSsmParameterValue API_DYNAMIC_SSM_PARAMETER_VALUE_2 =
+        software.amazon.awssdk.services.ssmincidents.model.DynamicSsmParameterValue
+            .builder()
+            .variable(VariableType.INVOLVED_RESOURCES)
+            .build();
+
     public static final String TAG_KEY_1 = "tag_key_1";
     public static final String TAG_VALUE_1 = "tag_value_1";
 
     public static final String TAG_KEY_2 = "tag_key_2";
     public static final String TAG_VALUE_2 = "tag_value_2";
 
-    public static final String TAG_KEY_3 = "tag_key_3";
-    public static final String TAG_VALUE_3 = "tag_value_3";
-
     public static final ImmutableMap<String, String> API_TAGS_1 = ImmutableMap.of(TAG_KEY_1, TAG_VALUE_1, TAG_KEY_2, TAG_VALUE_2);
     public static final Set<Tag> TAGS_1 = ImmutableSet.of(new Tag(TestData.TAG_KEY_1, TestData.TAG_VALUE_1), new Tag(TestData.TAG_KEY_2, TestData.TAG_VALUE_2));
 
     public static final ImmutableMap<String, String> API_TAGS_2 = ImmutableMap.of();
     public static final Set<Tag> TAGS_2 = ImmutableSet.of();
+
+    public static final String TAG_KEY_3 = "tag_key_3";
+    public static final String TAG_VALUE_3 = "tag_value_3";
 
     public static final Map<String, List<String>> API_SSM_PARAMETERS = ImmutableMap.of(
         SSM_PARAMETER_KEY,
@@ -71,19 +92,6 @@ public class TestData {
         SSM_PARAMETER_KEY_2,
         SSM_PARAMETER_VALUES_2
     );
-    public static final software.amazon.awssdk.services.ssmincidents.model.SsmAutomation API_SSM_AUTOMATION_1 =
-        software.amazon.awssdk.services.ssmincidents.model.SsmAutomation
-            .builder()
-            .documentName(SSM_DOC)
-            .documentVersion(SSM_VERSION)
-            .roleArn(SSM_ROLE)
-            .targetAccount(SsmTargetAccount.IMPACTED_ACCOUNT)
-            .parameters(API_SSM_PARAMETERS_1)
-            .build();
-    public static final software.amazon.awssdk.services.ssmincidents.model.Action API_ACTION_1 =
-        software.amazon.awssdk.services.ssmincidents.model.Action.builder()
-            .ssmAutomation(API_SSM_AUTOMATION_1)
-            .build();
     public static final Set<SsmParameter> SSM_PARAMETERS_1 = ImmutableSet.of(
         SsmParameter.builder()
             .key(SSM_PARAMETER_KEY)
@@ -94,16 +102,33 @@ public class TestData {
             .values(SSM_PARAMETER_VALUES_2)
             .build()
     );
-    public static final SsmAutomation SSM_AUTOMATION_1 = SsmAutomation.builder()
-        .documentName(SSM_DOC)
-        .documentVersion(SSM_VERSION)
-        .roleArn(SSM_ROLE)
-        .parameters(SSM_PARAMETERS_1)
-        .targetAccount("IMPACTED_ACCOUNT")
-        .build();
-    public static final Action ACTION_1 = Action.builder()
-        .ssmAutomation(SSM_AUTOMATION_1)
-        .build();
+    public static final Set<DynamicSsmParameter> DYNAMIC_SSM_PARAMETERS = ImmutableSet.of(
+        DynamicSsmParameter.builder()
+            .key(DYNAMIC_SSM_PARAMETER_KEY)
+            .value(DYNAMIC_SSM_PARAMETER_VALUE)
+            .build()
+    );
+    public static final Map<String, software.amazon.awssdk.services.ssmincidents.model.DynamicSsmParameterValue> API_DYNAMIC_SSM_PARAMETERS = ImmutableMap.of(
+        DYNAMIC_SSM_PARAMETER_KEY,
+        API_DYNAMIC_SSM_PARAMETER_VALUE
+    );
+    public static final Set<DynamicSsmParameter> DYNAMIC_SSM_PARAMETERS_2 = ImmutableSet.of(
+        DynamicSsmParameter.builder()
+            .key(DYNAMIC_SSM_PARAMETER_KEY)
+            .value(DYNAMIC_SSM_PARAMETER_VALUE)
+            .build(),
+        DynamicSsmParameter.builder()
+            .key(DYNAMIC_SSM_PARAMETER_KEY_2)
+            .value(DYNAMIC_SSM_PARAMETER_VALUE_2)
+            .build()
+    );
+    public static final Map<String, software.amazon.awssdk.services.ssmincidents.model.DynamicSsmParameterValue> API_DYNAMIC_SSM_PARAMETERS_2 = ImmutableMap.of(
+        DYNAMIC_SSM_PARAMETER_KEY,
+        API_DYNAMIC_SSM_PARAMETER_VALUE,
+        DYNAMIC_SSM_PARAMETER_KEY_2,
+        API_DYNAMIC_SSM_PARAMETER_VALUE_2
+    );
+
     public static final software.amazon.awssdk.services.ssmincidents.model.SsmAutomation API_SSM_AUTOMATION =
         software.amazon.awssdk.services.ssmincidents.model.SsmAutomation
             .builder()
@@ -111,30 +136,163 @@ public class TestData {
             .documentVersion(SSM_VERSION)
             .roleArn(SSM_ROLE)
             .build();
+
     public static final software.amazon.awssdk.services.ssmincidents.model.Action API_ACTION =
         software.amazon.awssdk.services.ssmincidents.model.Action.builder()
             .ssmAutomation(API_SSM_AUTOMATION)
             .build();
+
     public static final SsmAutomation SSM_AUTOMATION = SsmAutomation.builder()
         .documentName(SSM_DOC)
         .documentVersion(SSM_VERSION)
         .roleArn(SSM_ROLE)
         .build();
+
     public static final Action ACTION = Action.builder()
         .ssmAutomation(SSM_AUTOMATION)
         .build();
+
     public static final Action ACTION_EMPTY_SSM_PARAMETERS = Action.builder()
         .ssmAutomation(SsmAutomation.builder()
             .documentName(SSM_DOC)
             .documentVersion(SSM_VERSION)
             .roleArn(SSM_ROLE)
             .parameters(new HashSet<>())
+            .dynamicParameters(new HashSet<>())
             .build())
         .build();
+
+    public static final software.amazon.awssdk.services.ssmincidents.model.SsmAutomation API_SSM_AUTOMATION_1 =
+        software.amazon.awssdk.services.ssmincidents.model.SsmAutomation
+            .builder()
+            .documentName(SSM_DOC)
+            .documentVersion(SSM_VERSION)
+            .roleArn(SSM_ROLE)
+            .targetAccount(SsmTargetAccount.IMPACTED_ACCOUNT)
+            .parameters(API_SSM_PARAMETERS_1)
+            .dynamicParameters(API_DYNAMIC_SSM_PARAMETERS_2)
+            .build();
+
+    public static final software.amazon.awssdk.services.ssmincidents.model.Action API_ACTION_1 =
+        software.amazon.awssdk.services.ssmincidents.model.Action.builder()
+            .ssmAutomation(API_SSM_AUTOMATION_1)
+            .build();
+
+    public static final SsmAutomation SSM_AUTOMATION_1 = SsmAutomation.builder()
+        .documentName(SSM_DOC)
+        .documentVersion(SSM_VERSION)
+        .roleArn(SSM_ROLE)
+        .parameters(SSM_PARAMETERS_1)
+        .dynamicParameters(DYNAMIC_SSM_PARAMETERS_2)
+        .targetAccount("IMPACTED_ACCOUNT")
+        .build();
+
+    public static final Action ACTION_1 = Action.builder()
+        .ssmAutomation(SSM_AUTOMATION_1)
+        .build();
+
     public static final software.amazon.awssdk.services.ssmincidents.model.ChatChannel API_CHAT_CHANNEL =
         software.amazon.awssdk.services.ssmincidents.model.ChatChannel.builder()
             .chatbotSns(CHAT_SNS_1, CHAT_SNS_2)
             .build();
+
+    public static final ChatChannel CHAT_CHANNEL = ChatChannel.builder()
+        .chatbotSns(ImmutableList.of(CHAT_SNS_1, CHAT_SNS_2))
+        .build();
+
+    public static final software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem API_NOTIFICATION_TARGET_ITEM_1 =
+        software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem.builder()
+            .snsTopicArn(TestData.CHAT_SNS_1)
+            .build();
+
+    public static final NotificationTargetItem NOTIFICATION_TARGET_ITEM_1 = NotificationTargetItem
+        .builder()
+        .snsTopicArn(CHAT_SNS_1)
+        .build();
+
+    public static final software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem API_NOTIFICATION_TARGET_ITEM_2 =
+        software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem.builder()
+            .snsTopicArn(CHAT_SNS_2)
+            .build();
+
+    public static final NotificationTargetItem NOTIFICATION_TARGET_ITEM_2 = NotificationTargetItem
+        .builder()
+        .snsTopicArn(CHAT_SNS_2)
+        .build();
+
+    public static final software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate API_INCIDENT_TEMPLATE =
+        software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate.builder()
+            .title(TITLE)
+            .summary(SUMMARY)
+            .impact(IMPACT)
+            .dedupeString(DEDUP)
+            .notificationTargets(
+                API_NOTIFICATION_TARGET_ITEM_1,
+                API_NOTIFICATION_TARGET_ITEM_2
+            )
+            .incidentTags(API_TAGS_1)
+            .build();
+
+    public static final software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate API_INCIDENT_TEMPLATE_1 =
+        software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate.builder()
+            .title(TITLE)
+            .summary("")
+            .impact(IMPACT)
+            .dedupeString("")
+            .build();
+
+    public static final IncidentTemplate INCIDENT_TEMPLATE = IncidentTemplate.builder()
+        .title(TITLE)
+        .summary(SUMMARY)
+        .impact(IMPACT)
+        .dedupeString(DEDUP)
+        .notificationTargets(ImmutableList.of(
+                NOTIFICATION_TARGET_ITEM_1,
+                NOTIFICATION_TARGET_ITEM_2
+            )
+        )
+        .incidentTags(TAGS_1)
+        .build();
+
+    public static final IncidentTemplate INCIDENT_TEMPLATE_2 = IncidentTemplate.builder()
+        .title(TITLE)
+        .impact(IMPACT)
+        .build();
+
+    public static final IncidentTemplate INCIDENT_TEMPLATE_1 = IncidentTemplate.builder()
+        .title(TITLE)
+        .summary(SUMMARY)
+        .impact(IMPACT)
+        .dedupeString(DEDUP)
+        .incidentTags(TAGS_2)
+        .build();
+
+    public static final ResourceModel DESIRED_MODEL_BASE = ResourceModel.builder()
+        .name(NAME)
+        .incidentTemplate(
+            IncidentTemplate.builder().title(TITLE).impact(IMPACT).build()
+        ).build();
+
+    public static final ResourceModel RETURNED_MODEL_BASE = ResourceModel.builder()
+        .arn(ARN)
+        .name(NAME)
+        .incidentTemplate(
+            IncidentTemplate.builder().title(TITLE).impact(IMPACT).build()
+        )
+        .engagements(new HashSet<>())
+        .actions(new ArrayList<>())
+        .tags(new HashSet<>())
+        .build();
+
+    public static final GetResponsePlanResponse GET_RESPONSE_PLAN_RESPONSE_BASE = GetResponsePlanResponse
+        .builder()
+        .arn(ARN)
+        .name(NAME)
+        .incidentTemplate(
+            software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate.builder().title(TITLE).impact(IMPACT).build()
+        )
+        .build();
+
     public static final GetResponsePlanResponse GET_RESPONSE_PLAN_RESPONSE_COMPLETE = GetResponsePlanResponse
         .builder()
         .arn(ARN)
@@ -157,9 +315,7 @@ public class TestData {
         .actions(API_ACTION_1)
         .engagements(ImmutableSet.of(CONTACT, ESCALATION))
         .build();
-    public static final ChatChannel CHAT_CHANNEL = ChatChannel.builder()
-        .chatbotSns(ImmutableList.of(CHAT_SNS_1, CHAT_SNS_2))
-        .build();
+
     public static final ResourceModel MODEL_COMPLETE = ResourceModel.builder()
         .arn(ARN)
         .name(NAME)
@@ -181,86 +337,5 @@ public class TestData {
         .actions(ImmutableList.of(Action.builder().ssmAutomation(SSM_AUTOMATION_1).build()))
         .engagements(ImmutableSet.of(CONTACT, ESCALATION))
         .tags(TAGS_1)
-        .build();
-    public static final software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem API_NOTIFICATION_TARGET_ITEM_1 =
-        software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem.builder()
-            .snsTopicArn(TestData.CHAT_SNS_1)
-            .build();
-    public static final NotificationTargetItem NOTIFICATION_TARGET_ITEM_1 = NotificationTargetItem
-        .builder()
-        .snsTopicArn(CHAT_SNS_1)
-        .build();
-    public static final software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem API_NOTIFICATION_TARGET_ITEM_2 =
-        software.amazon.awssdk.services.ssmincidents.model.NotificationTargetItem.builder()
-            .snsTopicArn(CHAT_SNS_2)
-            .build();
-    public static final software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate API_INCIDENT_TEMPLATE =
-        software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate.builder()
-            .title(TITLE)
-            .summary(SUMMARY)
-            .impact(IMPACT)
-            .dedupeString(DEDUP)
-            .notificationTargets(
-                API_NOTIFICATION_TARGET_ITEM_1,
-                API_NOTIFICATION_TARGET_ITEM_2
-            )
-            .incidentTags(API_TAGS_1)
-            .build();
-    public static final software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate API_INCIDENT_TEMPLATE_1 =
-        software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate.builder()
-            .title(TITLE)
-            .summary("")
-            .impact(IMPACT)
-            .dedupeString("")
-            .build();
-    public static final NotificationTargetItem NOTIFICATION_TARGET_ITEM_2 = NotificationTargetItem
-        .builder()
-        .snsTopicArn(CHAT_SNS_2)
-        .build();
-    public static final IncidentTemplate INCIDENT_TEMPLATE = IncidentTemplate.builder()
-        .title(TITLE)
-        .summary(SUMMARY)
-        .impact(IMPACT)
-        .dedupeString(DEDUP)
-        .notificationTargets(ImmutableList.of(
-                NOTIFICATION_TARGET_ITEM_1,
-                NOTIFICATION_TARGET_ITEM_2
-            )
-        )
-        .incidentTags(TAGS_1)
-        .build();
-    public static final IncidentTemplate INCIDENT_TEMPLATE_1 = IncidentTemplate.builder()
-        .title(TITLE)
-        .summary(SUMMARY)
-        .impact(IMPACT)
-        .dedupeString(DEDUP)
-        .incidentTags(TAGS_2)
-        .build();
-    public static final IncidentTemplate INCIDENT_TEMPLATE_2 = IncidentTemplate.builder()
-        .title(TITLE)
-        .impact(IMPACT)
-        .build();
-    public static final ResourceModel DESIRED_MODEL_BASE = ResourceModel.builder()
-        .name(NAME)
-        .incidentTemplate(
-            IncidentTemplate.builder().title(TITLE).impact(IMPACT).build()
-        ).build();
-    public static final ResourceModel RETURNED_MODEL_BASE = ResourceModel.builder()
-        .arn(ARN)
-        .name(NAME)
-        .incidentTemplate(
-            IncidentTemplate.builder().title(TITLE).impact(IMPACT).build()
-        )
-        .engagements(new HashSet<>())
-        .actions(new ArrayList<>())
-        .tags(new HashSet<>())
-        .build();
-    public static final GetResponsePlanResponse GET_RESPONSE_PLAN_RESPONSE_BASE = GetResponsePlanResponse
-        .builder()
-        .arn(ARN)
-        .name(NAME)
-        .incidentTemplate(
-            software.amazon.awssdk.services.ssmincidents.model.IncidentTemplate.builder().title(TITLE).impact(IMPACT).build()
-        )
         .build();
 }

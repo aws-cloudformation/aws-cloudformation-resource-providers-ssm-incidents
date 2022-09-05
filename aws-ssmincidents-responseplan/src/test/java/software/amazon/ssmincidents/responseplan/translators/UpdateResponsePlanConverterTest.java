@@ -1,7 +1,12 @@
 package software.amazon.ssmincidents.responseplan.translators;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.base.Converter;
 import com.google.common.collect.ImmutableList;
+
+import java.util.stream.Stream;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,10 +19,6 @@ import software.amazon.awssdk.services.ssmincidents.model.UpdateResponsePlanRequ
 import software.amazon.ssmincidents.responseplan.IncidentTemplate;
 import software.amazon.ssmincidents.responseplan.ResourceModel;
 import software.amazon.ssmincidents.responseplan.TestData;
-
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class UpdateResponsePlanConverterTest {
 
@@ -33,7 +34,6 @@ class UpdateResponsePlanConverterTest {
                     .incidentTemplateTitle(TestData.TITLE)
                     .incidentTemplateSummary(TestData.SUMMARY)
                     .incidentTemplateImpact(TestData.IMPACT)
-                    .incidentTemplateDedupeString(TestData.DEDUP)
                     .incidentTemplateDedupeString(TestData.DEDUP)
                     .incidentTemplateNotificationTargets(
                         TestData.API_NOTIFICATION_TARGET_ITEM_1,
@@ -162,8 +162,7 @@ class UpdateResponsePlanConverterTest {
                             .summary(TestData.SUMMARY)
                             .impact(TestData.IMPACT)
                             .dedupeString(TestData.DEDUP)
-                            .notificationTargets(
-                                ImmutableList.of(
+                            .notificationTargets(ImmutableList.of(
                                     TestData.NOTIFICATION_TARGET_ITEM_1,
                                     TestData.NOTIFICATION_TARGET_ITEM_2
                                 )

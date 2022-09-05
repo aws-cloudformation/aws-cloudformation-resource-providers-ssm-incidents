@@ -35,50 +35,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class CreateHandlerTest extends AbstractTestBase {
 
-    public static final ResourceModel RETURNED_COMPLETE_MODEL = ResourceModel.builder()
-        .arn(TestData.ARN)
-        .name(TestData.NAME)
-        .displayName(TestData.DISPLAY_NAME)
-        .chatChannel(TestData.CHAT_CHANNEL)
-        .incidentTemplate(
-            IncidentTemplate.builder()
-                .title(TestData.TITLE)
-                .impact(TestData.IMPACT)
-                .dedupeString(TestData.DEDUP)
-                .summary(TestData.SUMMARY)
-                .notificationTargets(ImmutableList.of(
-                    NotificationTargetItem.builder().snsTopicArn(TestData.CHAT_SNS_1).build(),
-                    NotificationTargetItem.builder().snsTopicArn(TestData.CHAT_SNS_2).build()
-                ))
-                .incidentTags(TestData.TAGS_1)
-                .build()
-        )
-        .actions(ImmutableList.of(Action.builder().ssmAutomation(TestData.SSM_AUTOMATION_1).build()))
-        .engagements(ImmutableSet.of(TestData.CONTACT, TestData.ESCALATION))
-        .tags(TestData.TAGS_1)
-        .build();
-    public static final ResourceModel DESIRED_COMPLETE_MODEL = ResourceModel.builder()
-        .name(TestData.NAME)
-        .displayName(TestData.DISPLAY_NAME)
-        .chatChannel(TestData.CHAT_CHANNEL)
-        .incidentTemplate(
-            IncidentTemplate.builder()
-                .title(TestData.TITLE)
-                .impact(TestData.IMPACT)
-                .summary(TestData.SUMMARY)
-                .dedupeString(TestData.DEDUP)
-                .impact(TestData.IMPACT)
-                .notificationTargets(ImmutableList.of(
-                    NotificationTargetItem.builder().snsTopicArn(TestData.CHAT_SNS_1).build(),
-                    NotificationTargetItem.builder().snsTopicArn(TestData.CHAT_SNS_2).build()
-                ))
-                .incidentTags(TestData.TAGS_1)
-                .build()
-        )
-        .actions(ImmutableList.of(Action.builder().ssmAutomation(TestData.SSM_AUTOMATION_1).build()))
-        .engagements(ImmutableSet.of(TestData.CONTACT, TestData.ESCALATION))
-        .tags(TestData.TAGS_1)
-        .build();
     @Mock
     SsmIncidentsClient sdkClient;
     @Mock
@@ -188,4 +144,50 @@ public class CreateHandlerTest extends AbstractTestBase {
         assertThat(createResponsePlanRequest.chatChannel()).isEqualTo(TestData.API_CHAT_CHANNEL);
         return true;
     }
+
+    public static final ResourceModel RETURNED_COMPLETE_MODEL = ResourceModel.builder()
+        .arn(TestData.ARN)
+        .name(TestData.NAME)
+        .displayName(TestData.DISPLAY_NAME)
+        .chatChannel(TestData.CHAT_CHANNEL)
+        .incidentTemplate(
+            IncidentTemplate.builder()
+                .title(TestData.TITLE)
+                .impact(TestData.IMPACT)
+                .dedupeString(TestData.DEDUP)
+                .summary(TestData.SUMMARY)
+                .notificationTargets(ImmutableList.of(
+                    NotificationTargetItem.builder().snsTopicArn(TestData.CHAT_SNS_1).build(),
+                    NotificationTargetItem.builder().snsTopicArn(TestData.CHAT_SNS_2).build()
+                ))
+                .incidentTags(TestData.TAGS_1)
+                .build()
+        )
+        .actions(ImmutableList.of(Action.builder().ssmAutomation(TestData.SSM_AUTOMATION_1).build()))
+        .engagements(ImmutableSet.of(TestData.CONTACT, TestData.ESCALATION))
+        .tags(TestData.TAGS_1)
+        .build();
+
+    public static final ResourceModel DESIRED_COMPLETE_MODEL = ResourceModel.builder()
+        .name(TestData.NAME)
+        .displayName(TestData.DISPLAY_NAME)
+        .chatChannel(TestData.CHAT_CHANNEL)
+        .incidentTemplate(
+            IncidentTemplate.builder()
+                .title(TestData.TITLE)
+                .impact(TestData.IMPACT)
+                .summary(TestData.SUMMARY)
+                .dedupeString(TestData.DEDUP)
+                .impact(TestData.IMPACT)
+                .notificationTargets(ImmutableList.of(
+                    NotificationTargetItem.builder().snsTopicArn(TestData.CHAT_SNS_1).build(),
+                    NotificationTargetItem.builder().snsTopicArn(TestData.CHAT_SNS_2).build()
+                ))
+                .incidentTags(TestData.TAGS_1)
+                .build()
+        )
+        .actions(ImmutableList.of(Action.builder().ssmAutomation(TestData.SSM_AUTOMATION_1).build()))
+        .engagements(ImmutableSet.of(TestData.CONTACT, TestData.ESCALATION))
+        .tags(TestData.TAGS_1)
+        .build();
 }

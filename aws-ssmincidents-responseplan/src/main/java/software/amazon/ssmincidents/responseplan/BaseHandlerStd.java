@@ -10,11 +10,6 @@ import software.amazon.cloudformation.proxy.ResourceHandlerRequest;
 // Placeholder for the functionality that could be shared across Create/Read/Update/Delete/List Handlers
 
 public abstract class BaseHandlerStd extends BaseHandler<CallbackContext> {
-    static ResourceModel updateModelWithArn(ResourceModel model, String arn) {
-        model.setArn(arn);
-        return model;
-    }
-
     @Override
     public final ProgressEvent<ResourceModel, CallbackContext> handleRequest(
         final AmazonWebServicesClientProxy proxy,
@@ -36,4 +31,9 @@ public abstract class BaseHandlerStd extends BaseHandler<CallbackContext> {
         final CallbackContext callbackContext,
         final ProxyClient<SsmIncidentsClient> proxyClient,
         final Logger logger);
+
+    static ResourceModel updateModelWithArn(ResourceModel model, String arn) {
+        model.setArn(arn);
+        return model;
+    }
 }
