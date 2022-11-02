@@ -14,6 +14,8 @@ import org.mockito.quality.Strictness;
 import software.amazon.awssdk.services.ssmincidents.SsmIncidentsClient;
 import software.amazon.awssdk.services.ssmincidents.model.GetReplicationSetRequest;
 import software.amazon.awssdk.services.ssmincidents.model.GetReplicationSetResponse;
+import software.amazon.awssdk.services.ssmincidents.model.ListTagsForResourceRequest;
+import software.amazon.awssdk.services.ssmincidents.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.ssmincidents.model.RegionInfo;
 import software.amazon.awssdk.services.ssmincidents.model.RegionStatus;
 import software.amazon.awssdk.services.ssmincidents.model.ReplicationSet;
@@ -88,6 +90,11 @@ public class ReadHandlerTest extends AbstractTestBase {
 
         when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
             .thenReturn(getResponse);
+
+        when(sdkClient.listTagsForResource(any(ListTagsForResourceRequest.class)))
+            .thenReturn(
+                ListTagsForResourceResponse.builder().build()
+            );
 
         ResourceModel model = ResourceModel.builder()
             .arn("arn")
@@ -268,6 +275,11 @@ public class ReadHandlerTest extends AbstractTestBase {
         when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
             .thenReturn(getResponse);
 
+        when(sdkClient.listTagsForResource(any(ListTagsForResourceRequest.class)))
+            .thenReturn(
+                ListTagsForResourceResponse.builder().build()
+            );
+
         ResourceModel model = ResourceModel.builder()
             .arn("arn")
             .build();
@@ -288,8 +300,8 @@ public class ReadHandlerTest extends AbstractTestBase {
                 .deletionProtected(true)
                 .regions(
                     ImmutableSet.of(
-                        new ReplicationRegion("us-east-1", null),
-                        new ReplicationRegion("us-west-2", null)
+                        new ReplicationRegion("us-east-1", RegionConfiguration.builder().sseKmsKeyId(ReadHandler.DEFAULT_KMS_KEY_ID).build()),
+                        new ReplicationRegion("us-west-2", RegionConfiguration.builder().sseKmsKeyId(ReadHandler.DEFAULT_KMS_KEY_ID).build())
                     )
                 )
                 .build()
@@ -301,5 +313,74 @@ public class ReadHandlerTest extends AbstractTestBase {
         ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
         verify(sdkClient).getReplicationSet(getRequest.capture());
         assertThat(getRequest.getValue().arn()).isEqualTo("arn");
+    }
+
+    @Test
+    public void handleRequest_WithTagsSuccess() {
+        GetReplicationSetResponse getResponse = GetReplicationSetResponse.builder()
+            .replicationSet(
+                ReplicationSet.builder()
+                    .status(ReplicationSetStatus.ACTIVE)
+                    .deletionProtected(true)
+                    .regionMap(
+                        ImmutableMap.of(
+                            "us-east-1", RegionInfo.builder()
+                                .status(RegionStatus.ACTIVE)
+                                .sseKmsKeyId(ReadHandler.DEFAULT_KMS_KEY_ID)
+                                .build(),
+                            "us-west-2", RegionInfo.builder()
+                                .status(RegionStatus.ACTIVE)
+                                .sseKmsKeyId(ReadHandler.DEFAULT_KMS_KEY_ID)
+                                .build()
+                        )
+                    )
+                    .build()
+            )
+            .build();
+
+        when(sdkClient.getReplicationSet(any(GetReplicationSetRequest.class)))
+            .thenReturn(getResponse);
+
+        when(sdkClient.listTagsForResource(any(ListTagsForResourceRequest.class)))
+            .thenReturn(
+                ListTagsForResourceResponse.builder().tags(ImmutableMap.of("tag_key", "tag_value")).build()
+            );
+
+        ResourceModel model = ResourceModel.builder()
+            .arn("arn")
+            .build();
+
+        ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
+            .desiredResourceState(model)
+            .build();
+
+        ProgressEvent<ResourceModel, CallbackContext> response =
+            handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(OperationStatus.SUCCESS);
+        assertThat(response.getCallbackDelaySeconds()).isEqualTo(0);
+        assertThat(response.getResourceModel()).isEqualTo(
+            ResourceModel.builder()
+                .arn("arn")
+                .deletionProtected(true)
+                .regions(
+                    ImmutableSet.of(
+                        new ReplicationRegion("us-east-1", RegionConfiguration.builder().sseKmsKeyId(ReadHandler.DEFAULT_KMS_KEY_ID).build()),
+                        new ReplicationRegion("us-west-2", RegionConfiguration.builder().sseKmsKeyId(ReadHandler.DEFAULT_KMS_KEY_ID).build())
+                    )
+                )
+                .tags(ImmutableSet.of(new Tag("tag_key", "tag_value")))
+                .build()
+        );
+        assertThat(response.getResourceModels()).isNull();
+        assertThat(response.getMessage()).isNull();
+        assertThat(response.getErrorCode()).isNull();
+
+        ArgumentCaptor<GetReplicationSetRequest> getRequest = ArgumentCaptor.forClass(GetReplicationSetRequest.class);
+        verify(sdkClient).getReplicationSet(getRequest.capture());
+        assertThat(getRequest.getValue().arn()).isEqualTo("arn");
+
+        verify(sdkClient).listTagsForResource(ArgumentCaptor.forClass(ListTagsForResourceRequest.class).capture());
     }
 }
