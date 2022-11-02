@@ -42,9 +42,22 @@ public class Translator {
             regions = ImmutableMap.of();
         }
 
+        Map<String, String> tagMap;
+        if(model.getTags() != null){
+            try {
+                tagMap =  model.getTags().stream().collect(Collectors.toMap(Tag::getKey, Tag::getValue));
+            } catch (Exception e) {
+                throw new CfnInvalidRequestException("duplicate tag keys");
+            }
+
+        } else {
+            tagMap = null;
+        }
+
         return CreateReplicationSetRequest.builder()
             .regions(regions)
             .clientToken(clientToken)
+            .tags(tagMap)
             .build();
     }
 
