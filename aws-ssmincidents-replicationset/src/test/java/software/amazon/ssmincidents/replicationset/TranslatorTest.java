@@ -1,8 +1,11 @@
 package software.amazon.ssmincidents.replicationset;
 
+import java.util.Set;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.services.ssmincidents.model.CreateReplicationSetRequest;
 import software.amazon.awssdk.services.ssmincidents.model.RegionInfo;
 import software.amazon.awssdk.services.ssmincidents.model.ReplicationSet;
 import software.amazon.awssdk.services.ssmincidents.model.UpdateReplicationSetRequest;
@@ -14,6 +17,36 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class TranslatorTest {
+
+    public static final String TAG_KEY_1 = "tag_key_1";
+    public static final String TAG_VALUE_1 = "tag_value_1";
+    public static final String TAG_KEY_2 = "tag_key_2";
+    public static final String TAG_VALUE_2 = "tag_value_2";
+    public static final ImmutableMap<String, String> API_TAGS = ImmutableMap.of(TAG_KEY_1, TAG_VALUE_1, TAG_KEY_2, TAG_VALUE_2);
+    public static final Set<Tag> TAGS = ImmutableSet.of(new Tag("tag_key_1", "tag_value_1"), new Tag("tag_key_2", "tag_value_2"));
+
+    @Test
+    public void testTranslateToCreateRequestTagOnCreateNoKmsKeys() {
+        ResourceModel resourceModel = ResourceModel.builder()
+            .arn("arn")
+            .regions(
+                ImmutableSet.of(
+                    ReplicationRegion.builder()
+                        .regionName("us-west-2")
+                        .build()
+                )
+            )
+            .tags(TAGS)
+            .build();
+        CreateReplicationSetRequest apiRequest = Translator.translateToCreateRequest(
+            resourceModel,
+            "clientToken"
+        );
+
+        assertEquals("clientToken", apiRequest.clientToken());
+        assertNotNull(apiRequest.regions().get("us-west-2"));
+        assertEquals(API_TAGS, apiRequest.tags());
+    }
 
     @Test
     public void testTranslateToUpdateRequestAddRegionNoKmsKeys() {

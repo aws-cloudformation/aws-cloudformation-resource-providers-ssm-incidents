@@ -13,7 +13,8 @@ To declare this entity in your AWS CloudFormation template, use the following sy
     "Type" : "AWS::SSMIncidents::ReplicationSet",
     "Properties" : {
         "<a href="#regions" title="Regions">Regions</a>" : <i>[ <a href="replicationregion.md">ReplicationRegion</a>, ... ]</i>,
-        "<a href="#deletionprotected" title="DeletionProtected">DeletionProtected</a>" : <i>Boolean</i>
+        "<a href="#deletionprotected" title="DeletionProtected">DeletionProtected</a>" : <i>Boolean</i>,
+        "<a href="#tags" title="Tags">Tags</a>" : <i>[ <a href="tag.md">Tag</a>, ... ]</i>
     }
 }
 </pre>
@@ -26,6 +27,8 @@ Properties:
     <a href="#regions" title="Regions">Regions</a>: <i>
       - <a href="replicationregion.md">ReplicationRegion</a></i>
     <a href="#deletionprotected" title="DeletionProtected">DeletionProtected</a>: <i>Boolean</i>
+    <a href="#tags" title="Tags">Tags</a>: <i>
+      - <a href="tag.md">Tag</a></i>
 </pre>
 
 ## Properties
@@ -45,6 +48,16 @@ Configures the ReplicationSet deletion protection.
 _Required_: No
 
 _Type_: Boolean
+
+_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
+
+#### Tags
+
+The tags to apply to the replication set.
+
+_Required_: No
+
+_Type_: List of <a href="tag.md">Tag</a>
 
 _Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
 

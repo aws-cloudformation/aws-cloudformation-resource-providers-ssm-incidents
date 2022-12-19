@@ -19,6 +19,8 @@ import software.amazon.awssdk.services.ssmincidents.model.GetReplicationSetReque
 import software.amazon.awssdk.services.ssmincidents.model.GetReplicationSetResponse;
 import software.amazon.awssdk.services.ssmincidents.model.ListReplicationSetsRequest;
 import software.amazon.awssdk.services.ssmincidents.model.ListReplicationSetsResponse;
+import software.amazon.awssdk.services.ssmincidents.model.ListTagsForResourceRequest;
+import software.amazon.awssdk.services.ssmincidents.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.ssmincidents.model.RegionInfo;
 import software.amazon.awssdk.services.ssmincidents.model.RegionMapInputValue;
 import software.amazon.awssdk.services.ssmincidents.model.ReplicationSet;
@@ -214,6 +216,9 @@ public class CreateHandlerTest extends AbstractTestBase {
         when(sdkClient.updateDeletionProtection(any(UpdateDeletionProtectionRequest.class)))
             .thenReturn(UpdateDeletionProtectionResponse.builder().build());
 
+        when(sdkClient.listTagsForResource(any(ListTagsForResourceRequest.class)))
+            .thenReturn(ListTagsForResourceResponse.builder().build());
+
         ResourceModel model = ResourceModel.builder()
             .deletionProtected(true)
             .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
@@ -328,6 +333,9 @@ public class CreateHandlerTest extends AbstractTestBase {
                 )
                 .build()
         );
+
+        when(sdkClient.listTagsForResource(any(ListTagsForResourceRequest.class)))
+            .thenReturn(ListTagsForResourceResponse.builder().build());
 
         ResourceModel model = ResourceModel.builder()
             .regions(ImmutableSet.of(new ReplicationRegion("us-east-1", RegionConfiguration.builder().build())))
@@ -511,6 +519,9 @@ public class CreateHandlerTest extends AbstractTestBase {
 
         when(sdkClient.updateDeletionProtection(any(UpdateDeletionProtectionRequest.class)))
             .thenReturn(UpdateDeletionProtectionResponse.builder().build());
+
+        when(sdkClient.listTagsForResource(any(ListTagsForResourceRequest.class)))
+            .thenReturn(ListTagsForResourceResponse.builder().build());
 
         ResourceModel model = ResourceModel.builder()
             .deletionProtected(true)

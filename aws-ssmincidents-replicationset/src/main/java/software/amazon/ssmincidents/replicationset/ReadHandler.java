@@ -5,6 +5,8 @@ import com.google.common.collect.ImmutableSet;
 import software.amazon.awssdk.services.ssmincidents.SsmIncidentsClient;
 import software.amazon.awssdk.services.ssmincidents.model.GetReplicationSetRequest;
 import software.amazon.awssdk.services.ssmincidents.model.GetReplicationSetResponse;
+import software.amazon.awssdk.services.ssmincidents.model.ListTagsForResourceRequest;
+import software.amazon.awssdk.services.ssmincidents.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.ssmincidents.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.ssmincidents.model.ValidationException;
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy;
@@ -14,6 +16,7 @@ import software.amazon.cloudformation.proxy.ProgressEvent;
 import software.amazon.cloudformation.proxy.ProxyClient;
 import software.amazon.cloudformation.proxy.ResourceHandlerRequest;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,17 +55,21 @@ public class ReadHandler extends BaseHandlerStd {
                     regionConfig ->
                         new ReplicationRegion(
                             regionConfig.getKey(),
-                            Optional.ofNullable(defaultKeyIdToNull(regionConfig.getValue().sseKmsKeyId()))
+                            Optional.ofNullable(regionConfig.getValue().sseKmsKeyId())
                                 .map(RegionConfiguration::new)
                                 .orElse(null)
                         )
                 )
                 .collect(Collectors.toSet());
+            Map<String, String> tagMap = getTags(awsRequest.arn(), proxyClient).tags();
+            Set<Tag> tags = tagMap.isEmpty()? null : tagMap.entrySet().stream().map(x -> new Tag(x.getKey(), x.getValue())).collect(Collectors.toSet());
 
             model.setArn(awsRequest.arn());
             model.setDeletionProtected(awsResponse.replicationSet().deletionProtected());
             model.setRegions(ImmutableSet.copyOf(replicationRegions));
+            model.setTags(Optional.ofNullable(tags).orElse(null));
             return ProgressEvent.defaultSuccessHandler(model);
+
         } catch (ResourceNotFoundException exception) {
             return ProgressEvent.defaultFailureHandler(exception, HandlerErrorCode.NotFound);
         } catch (ValidationException exception) {
@@ -72,10 +79,12 @@ public class ReadHandler extends BaseHandlerStd {
         }
     }
 
-    private static String defaultKeyIdToNull(String keyId) {
-        return DEFAULT_KMS_KEY_ID.equals(keyId) ? null : keyId;
-    }
-
     @VisibleForTesting
     static final String DEFAULT_KMS_KEY_ID = "DefaultKey";
+
+    private ListTagsForResourceResponse getTags(String arn, ProxyClient<SsmIncidentsClient> proxyClient) {
+        return proxyClient.injectCredentialsAndInvokeV2(
+            ListTagsForResourceRequest.builder().resourceArn(arn).build(),
+            proxyClient.client()::listTagsForResource);
+    }
 }
